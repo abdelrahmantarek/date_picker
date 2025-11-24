@@ -18,6 +18,9 @@ class EnhancedDateRangePicker extends StatefulWidget {
   final DateTime? initialStartDate;
   final DateTime? initialEndDate;
   final Function(DateTime startDate, DateTime? endDate)? onDateSelected;
+
+  /// Called whenever the user changes the current selection (start or end date)
+  final Function(DateTime startDate, DateTime? endDate)? onDateChanged;
   final String title;
   final Color primaryColor;
   final Map<String, String>? translations;
@@ -73,6 +76,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     this.initialStartDate,
     this.initialEndDate,
     required this.onDateSelected,
+    this.onDateChanged,
     this.title = '',
     this.primaryColor = const Color(0xFF2196F3),
     this.translations,
@@ -102,6 +106,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     DateTime? initialStartDate,
     DateTime? initialEndDate,
     required Function(DateTime startDate, DateTime? endDate) onDateSelected,
+    Function(DateTime startDate, DateTime? endDate)? onDateChanged,
     String title = '',
     Color primaryColor = const Color(0xFF2196F3),
     Map<String, String>? translations,
@@ -117,6 +122,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
         initialStartDate: initialStartDate,
         initialEndDate: initialEndDate,
         onDateSelected: onDateSelected,
+        onDateChanged: onDateChanged,
         title: title,
         primaryColor: primaryColor,
         translations: translations,
@@ -767,6 +773,11 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
             _isSelectingEndDate = true;
           }
         }
+      }
+
+      // Notify about selection changes
+      if (widget.onDateChanged != null) {
+        widget.onDateChanged!(_startDate!, _endDate);
       }
     });
 

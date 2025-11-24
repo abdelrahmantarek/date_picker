@@ -302,7 +302,14 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
       primaryColor: Colors.blue,
       locale: 'en',
       selectionMode: DateSelectionMode.single,
+      onDateChanged: (startDate, endDate) {
+        // Live update while user is tapping days
+        setState(() {
+          _selectedSingleDate = startDate;
+        });
+      },
       onDateSelected: (startDate, endDate) {
+        // Final confirmation (same behavior here)
         setState(() {
           _selectedSingleDate = startDate;
         });
@@ -759,7 +766,11 @@ class _EmbeddedWidgetExamplesPageState
                     width: 400,
                     autoClose: false, // Don't call onDateSelected automatically
                     showActionButtons: false, // Hide default buttons
+                    onDateChanged: (startDate, endDate) {
+                      print(" onDateChanged called!");
+                    },
                     onDateSelected: (startDate, endDate) {
+                      print(" onDateSelected called!");
                       // This will be called when user clicks Save button
                       // via confirmSelection() method
                       setState(() {

@@ -441,9 +441,10 @@ EnhancedDateRangePicker.show(
 
 ### Callbacks
 
-| Parameter        | Type                            | Required | Description                    |
-| ---------------- | ------------------------------- | -------- | ------------------------------ |
-| `onDateSelected` | `Function(DateTime, DateTime?)` | Yes      | Called when dates are selected |
+| Parameter        | Type                            | Required | Description                                    |
+| ---------------- | ------------------------------- | -------- | ---------------------------------------------- |
+| `onDateSelected` | `Function(DateTime, DateTime?)` | Yes      | Called when dates are finally **confirmed**    |
+| `onDateChanged`  | `Function(DateTime, DateTime?)` | No       | Called whenever the user **changes** selection |
 
 ## 🌍 Internationalization
 
@@ -531,6 +532,7 @@ EnhancedDateRangePicker({
   DateTime? initialStartDate,
   DateTime? initialEndDate,
   required Function(DateTime startDate, DateTime? endDate)? onDateSelected,
+  Function(DateTime startDate, DateTime? endDate)? onDateChanged,
   String title = '',
   Color primaryColor = const Color(0xFF2196F3),
   Map<String, String>? translations,
@@ -556,6 +558,7 @@ static Future<void> show({
   DateTime? initialStartDate,
   DateTime? initialEndDate,
   required Function(DateTime startDate, DateTime? endDate) onDateSelected,
+  Function(DateTime startDate, DateTime? endDate)? onDateChanged,
   String title = '',
   Color primaryColor = const Color(0xFF2196F3),
   Map<String, String>? translations,
