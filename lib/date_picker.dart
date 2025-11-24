@@ -94,7 +94,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
 
   @override
   State<EnhancedDateRangePicker> createState() =>
-      _EnhancedDateRangePickerState();
+      EnhancedDateRangePickerState();
 
   /// Show the date picker as a modal bottom sheet
   static Future<void> show({
@@ -190,7 +190,8 @@ class _DatePickerTranslations {
   }
 }
 
-class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
+/// Public state class to allow access via GlobalKey when autoClose: false
+class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     with TickerProviderStateMixin {
   DateTime? _startDate;
   DateTime? _endDate;
@@ -198,6 +199,10 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   bool _isSelectingEndDate = false;
   late ScrollController _scrollController;
   bool _localeInitialized = false;
+
+  /// Public getters for accessing selected dates (useful when autoClose: false)
+  DateTime? get selectedStartDate => _startDate;
+  DateTime? get selectedEndDate => _endDate;
 
   /// Helper method to translate strings
   String _translate(String key) {
@@ -725,6 +730,8 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   void _onDateTap(DateTime date) {
+    bool shouldAutoConfirm = false;
+
     setState(() {
       if (widget.selectionMode == DateSelectionMode.single) {
         // Single date selection mode
@@ -732,10 +739,9 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         _endDate = null;
         _isSelectingEndDate = false;
 
-        // Auto-confirm for single date selection
-        if (widget.onDateSelected != null) {
-          widget.onDateSelected!(date, null);
-          Navigator.of(context).pop();
+        // For single selection, optionally auto-confirm based on autoClose
+        if (widget.autoClose) {
+          shouldAutoConfirm = true;
         }
       } else {
         // Date range selection mode
@@ -762,6 +768,10 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         }
       }
     });
+
+    if (shouldAutoConfirm) {
+      _confirmSelection();
+    }
   }
 
   void _scrollToSelectedDates() {
@@ -919,23 +929,53 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
 
   void _confirmSelection() {
     if (widget.selectionMode == DateSelectionMode.single) {
-      if (_startDate != null && widget.onDateSelected != null) {
-        widget.onDateSelected!(_startDate!, null);
-        // Only auto-close if autoClose is enabled
-        if (widget.autoClose) {
+      if (_startDate != null) {
+        // Call onDateSelected callback if autoClose is true OR if callback is provided
+        if (widget.autoClose && widget.onDateSelected != null) {
+          widget.onDateSelected!(_startDate!, null);
+        }
+
+        // Only auto-close modal if autoClose is enabled and in modal mode
+        if (widget.autoClose && widget.isModal) {
           Navigator.of(context).pop();
         }
       }
     } else {
-      if (_startDate != null &&
-          _endDate != null &&
-          widget.onDateSelected != null) {
-        widget.onDateSelected!(_startDate!, _endDate);
-        // Only auto-close if autoClose is enabled
-        if (widget.autoClose) {
+      if (_startDate != null && _endDate != null) {
+        // Call onDateSelected callback if autoClose is true OR if callback is provided
+        if (widget.autoClose && widget.onDateSelected != null) {
+          widget.onDateSelected!(_startDate!, _endDate);
+        }
+
+        // Only auto-close modal if autoClose is enabled and in modal mode
+        if (widget.autoClose && widget.isModal) {
           Navigator.of(context).pop();
         }
       }
     }
+  }
+
+  /// Public method to manually confirm selection (useful when autoClose: false)
+  /// Returns true if selection is valid and confirmed
+  bool confirmSelection() {
+    bool isValid = false;
+
+    if (widget.selectionMode == DateSelectionMode.single) {
+      if (_startDate != null) {
+        if (widget.onDateSelected != null) {
+          widget.onDateSelected!(_startDate!, null);
+        }
+        isValid = true;
+      }
+    } else {
+      if (_startDate != null && _endDate != null) {
+        if (widget.onDateSelected != null) {
+          widget.onDateSelected!(_startDate!, _endDate);
+        }
+        isValid = true;
+      }
+    }
+
+    return isValid;
   }
 }

@@ -449,7 +449,10 @@ class _EmbeddedWidgetExamplesPageState
   DateTime? _selectedSingleDate;
   DateTimeRange? _selectedDateRange;
   DateTime? _selectedManualCloseDate;
-  DateTime? _tempManualCloseDate; // Temporary storage before saving
+
+  // GlobalKey to access the date picker state when autoClose: false
+  final GlobalKey<EnhancedDateRangePickerState> _datePickerKey =
+      GlobalKey<EnhancedDateRangePickerState>();
 
   @override
   Widget build(BuildContext context) {
@@ -702,17 +705,17 @@ class _EmbeddedWidgetExamplesPageState
             ),
             const SizedBox(height: 8),
             const Text(
-              'Note: autoClose only works in Modal mode. For embedded widgets, use showActionButtons: false and add external buttons.',
+              'With autoClose: false, the widget won\'t call onDateSelected automatically.\nUse GlobalKey to access selected dates and call confirmSelection() manually.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
                 fontStyle: FontStyle.italic,
-                color: Colors.orange,
+                color: Colors.blue,
               ),
             ),
             const SizedBox(height: 4),
             const Text(
-              'Date picker with external Save button - validates before accepting',
+              'This example validates the date before saving (only future dates allowed)',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
             ),
@@ -747,84 +750,90 @@ class _EmbeddedWidgetExamplesPageState
               child: Column(
                 children: [
                   EnhancedDateRangePicker(
-                    initialStartDate: _tempManualCloseDate,
+                    key: _datePickerKey, // Key to access state
                     selectionMode: DateSelectionMode.single,
                     primaryColor: Colors.indigo,
                     locale: 'en',
                     isModal: false,
                     height: 450,
                     width: 400,
-                    autoClose:
-                        false, // Has no effect in embedded mode (isModal: false)
-                    showActionButtons:
-                        false, // Hide default buttons - use external Save button
+                    autoClose: false, // Don't call onDateSelected automatically
+                    showActionButtons: false, // Hide default buttons
                     onDateSelected: (startDate, endDate) {
-                      // Update the temporary selection immediately
-                      // Don't save to final state yet - wait for user to click Save button
+                      // This will be called when user clicks Save button
+                      // via confirmSelection() method
                       setState(() {
-                        _tempManualCloseDate = startDate;
+                        _selectedManualCloseDate = startDate;
                       });
                     },
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    onPressed: _tempManualCloseDate == null
-                        ? null
-                        : () {
-                            // Validate: only allow future dates
-                            if (_tempManualCloseDate!.isBefore(
-                              DateTime.now().subtract(const Duration(days: 1)),
-                            )) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please select today or a future date!',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                              return;
-                            }
+                    onPressed: () {
+                      // Get selected date from picker state
+                      final pickerState = _datePickerKey.currentState;
+                      if (pickerState == null ||
+                          pickerState.selectedStartDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please select a date first!'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
 
-                            // Show confirmation dialog
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) => AlertDialog(
-                                title: const Text('Confirm Selection'),
-                                content: Text(
-                                  'Do you want to save this date?\n\n${_tempManualCloseDate!.toLocal().toString().split(' ')[0]}',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(dialogContext);
-                                    },
-                                    child: const Text('Cancel'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _selectedManualCloseDate =
-                                            _tempManualCloseDate;
-                                      });
-                                      Navigator.pop(dialogContext);
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Date saved successfully!',
-                                          ),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    },
-                                    child: const Text('Save'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                      final selectedDate = pickerState.selectedStartDate!;
+
+                      // Validate: only allow future dates
+                      if (selectedDate.isBefore(
+                        DateTime.now().subtract(const Duration(days: 1)),
+                      )) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Please select today or a future date!',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Confirm Selection'),
+                          content: Text(
+                            'Do you want to save this date?\n\n${selectedDate.toLocal().toString().split(' ')[0]}',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext);
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Call confirmSelection to trigger onDateSelected
+                                if (pickerState.confirmSelection()) {
+                                  Navigator.pop(dialogContext);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Date saved successfully!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text('Save'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.save),
                     label: const Text('Save Date'),
                     style: ElevatedButton.styleFrom(

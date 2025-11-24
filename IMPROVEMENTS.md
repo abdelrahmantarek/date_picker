@@ -530,14 +530,15 @@ EnhancedDateRangePicker.show(
 );
 ```
 
-**Embedded Widget with External Save Button**:
+**Using autoClose: false with GlobalKey**:
 
-**Note:** `autoClose` parameter only works in **Modal mode** (`isModal: true`). For embedded widgets, the widget is already part of the screen, so there's nothing to "close". Instead, use `showActionButtons: false` and add your own external buttons.
+When `autoClose: false`, the widget won't call `onDateSelected` automatically. This works in both Modal and Embedded modes.
 
 ```dart
 // State variables
 DateTime? _selectedDate;
-DateTime? _tempDate;
+final GlobalKey<EnhancedDateRangePickerState> _datePickerKey =
+    GlobalKey<EnhancedDateRangePickerState>();
 
 // Embedded widget with external Save button
 Column(

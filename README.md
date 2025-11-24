@@ -291,55 +291,73 @@ EnhancedDateRangePicker.show(
 )
 ```
 
-### 11. Embedded Widget with External Save Button
+### 11. Manual Close Control with autoClose: false
 
-**Note:** `autoClose` parameter only works in **Modal mode** (`isModal: true`). For embedded widgets, use `showActionButtons: false` and add your own external buttons.
+When `autoClose: false`, the widget won't call `onDateSelected` automatically. Use `GlobalKey` to access selected dates and call `confirmSelection()` manually.
 
 ```dart
 // State variables
 DateTime? _selectedDate;
-DateTime? _tempDate;
+final GlobalKey<EnhancedDateRangePickerState> _datePickerKey =
+    GlobalKey<EnhancedDateRangePickerState>();
 
 // Widget
 Column(
   children: [
     EnhancedDateRangePicker(
-      initialStartDate: _tempDate,
+      key: _datePickerKey, // Key to access state
       selectionMode: DateSelectionMode.single,
       isModal: false,
       height: 450,
       width: 400,
-      showActionButtons: false, // Hide default buttons - use external button
+      autoClose: false, // Don't call onDateSelected automatically
+      showActionButtons: false, // Hide default buttons
       onDateSelected: (startDate, endDate) {
+        // This will be called when confirmSelection() is invoked
         setState(() {
-          _tempDate = startDate; // Update selection immediately
+          _selectedDate = startDate;
         });
       },
     ),
     SizedBox(height: 16),
     ElevatedButton(
-      onPressed: _tempDate == null ? null : () {
+      onPressed: () {
+        // Get selected date from picker state
+        final pickerState = _datePickerKey.currentState;
+        if (pickerState?.selectedStartDate == null) {
+          // Show error
+          return;
+        }
+
+        final selectedDate = pickerState!.selectedStartDate!;
+
         // Validate before saving
-        if (_tempDate!.isBefore(DateTime.now())) {
+        if (selectedDate.isBefore(DateTime.now())) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please select a future date!')),
           );
           return;
         }
 
-        // Save the date
-        setState(() {
-          _selectedDate = _tempDate;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Date saved successfully!')),
-        );
+        // Call confirmSelection to trigger onDateSelected
+        if (pickerState.confirmSelection()) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Date saved successfully!')),
+          );
+        }
       },
       child: Text('Save Date'),
     ),
   ],
 )
 ```
+
+**Key Points:**
+
+- Use `GlobalKey<EnhancedDateRangePickerState>` to access the picker's state
+- Access selected dates via `pickerState.selectedStartDate` and `pickerState.selectedEndDate`
+- Call `pickerState.confirmSelection()` to trigger `onDateSelected` callback
+- Works in both Modal and Embedded modes
 
 ### 12. Custom Colors and Translations
 
