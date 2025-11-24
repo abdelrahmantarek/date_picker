@@ -53,6 +53,11 @@ class EnhancedDateRangePicker extends StatefulWidget {
   /// Show/hide the Confirm button
   final bool showConfirmButton;
 
+  /// Automatically close the modal/widget after date selection
+  /// When true (default): Closes automatically after confirming selection
+  /// When false: You need to manually close using Navigator.pop(context)
+  final bool autoClose;
+
   const EnhancedDateRangePicker({
     super.key,
     this.initialStartDate,
@@ -72,6 +77,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     this.showActionButtons = true,
     this.showCancelButton = true,
     this.showConfirmButton = true,
+    this.autoClose = true,
   });
 
   @override
@@ -89,6 +95,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     Map<String, String>? translations,
     String locale = 'en',
     DateSelectionMode selectionMode = DateSelectionMode.range,
+    bool autoClose = true,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -104,6 +111,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
         locale: locale,
         selectionMode: selectionMode,
         isModal: true, // Always true for modal display
+        autoClose: autoClose,
       ),
     );
   }
@@ -888,14 +896,20 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     if (widget.selectionMode == DateSelectionMode.single) {
       if (_startDate != null && widget.onDateSelected != null) {
         widget.onDateSelected!(_startDate!, null);
-        Navigator.of(context).pop();
+        // Only auto-close if autoClose is enabled
+        if (widget.autoClose) {
+          Navigator.of(context).pop();
+        }
       }
     } else {
       if (_startDate != null &&
           _endDate != null &&
           widget.onDateSelected != null) {
         widget.onDateSelected!(_startDate!, _endDate);
-        Navigator.of(context).pop();
+        // Only auto-close if autoClose is enabled
+        if (widget.autoClose) {
+          Navigator.of(context).pop();
+        }
       }
     }
   }

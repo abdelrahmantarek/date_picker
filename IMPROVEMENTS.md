@@ -383,6 +383,7 @@ EnhancedDateRangePicker(
 - ✅ **Flexible width control** for embedded widgets
 - ✅ **UI section visibility control** (header, title, buttons, etc.)
 - ✅ **Widget width-based responsive layout**
+- ✅ **Manual close control** (autoClose parameter)
 
 ### Use Cases
 
@@ -397,9 +398,157 @@ EnhancedDateRangePicker(
 - 🎨 **Custom form integrations**
 - 📋 **Dashboard widgets**
 
+---
+
+## 8. Manual Close Control
+
+**Date**: 2024-11-24
+
+### Problem
+
+The date picker automatically closed after date selection, which didn't allow for:
+
+- Custom validation before closing
+- Showing confirmation dialogs
+- Performing additional actions before dismissing
+- Giving users a chance to review their selection
+
+### Solution
+
+Added `autoClose` parameter to control whether the picker closes automatically after date selection.
+
+#### New Parameter
+
+```dart
+/// Automatically close the modal/widget after date selection
+/// When true (default): Closes automatically after confirming selection
+/// When false: You need to manually close using Navigator.pop(context)
+final bool autoClose;
+```
+
+#### Implementation Details
+
+1. **Added to Constructor**:
+
+   - Default value: `true` (maintains backward compatibility)
+   - Available in both widget constructor and static `show()` method
+
+2. **Updated `_confirmSelection()` Method**:
+
+   - Checks `autoClose` before calling `Navigator.pop()`
+   - Allows callback to execute first, then conditionally closes
+
+3. **Use Cases**:
+   - Show confirmation dialog before closing
+   - Validate selected date before accepting
+   - Perform API calls or data processing
+   - Show success/error messages
+   - Allow users to review and change selection
+
+#### Example Usage
+
+**Automatic Close (Default Behavior)**:
+
+```dart
+EnhancedDateRangePicker.show(
+  context: context,
+  selectionMode: DateSelectionMode.single,
+  autoClose: true, // Default - closes automatically
+  onDateSelected: (startDate, endDate) {
+    setState(() {
+      _selectedDate = startDate;
+    });
+  },
+);
+```
+
+**Manual Close with Confirmation**:
+
+```dart
+EnhancedDateRangePicker.show(
+  context: context,
+  selectionMode: DateSelectionMode.single,
+  autoClose: false, // Don't auto-close
+  onDateSelected: (startDate, endDate) {
+    // Update state
+    setState(() {
+      _selectedDate = startDate;
+    });
+
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Confirm Date'),
+        content: Text('Selected: ${startDate.toLocal()}'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext); // Close dialog only
+              // Date picker stays open - user can select again
+            },
+            child: Text('Select Again'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext); // Close dialog
+              Navigator.pop(context); // Close date picker manually
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+  },
+);
+```
+
+**Manual Close with Validation**:
+
+```dart
+EnhancedDateRangePicker.show(
+  context: context,
+  selectionMode: DateSelectionMode.single,
+  autoClose: false,
+  onDateSelected: (startDate, endDate) {
+    // Validate date
+    if (startDate.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a future date')),
+      );
+      // Don't close - let user select again
+      return;
+    }
+
+    // Valid date - update and close
+    setState(() {
+      _selectedDate = startDate;
+    });
+    Navigator.pop(context); // Close manually
+  },
+);
+```
+
+#### Benefits
+
+✅ **Flexible Control**: Developer decides when to close
+✅ **Better UX**: Can show confirmations and validations
+✅ **Backward Compatible**: Default behavior unchanged
+✅ **Error Handling**: Can prevent closing on invalid selections
+✅ **Custom Workflows**: Supports complex user flows
+
+#### Files Modified
+
+- ✅ `lib/date_picker.dart` - Added `autoClose` parameter and logic
+- ✅ `example/lib/main.dart` - Added manual close example with confirmation dialog
+
+---
+
 ## Files Modified
 
 - ✅ `lib/date_picker.dart`
 - ✅ `example/lib/main.dart`
 - ✅ `pubspec.yaml`
 - ✅ `IMPROVEMENTS.md`
+- ✅ `README.md`
+- ✅ `example/README.md`

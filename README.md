@@ -246,7 +246,34 @@ EnhancedDateRangePicker(
 )
 ```
 
-### 9. Custom Colors and Translations
+### 9. Manual Close Control
+
+Control when the picker closes - perfect for validation and confirmations.
+
+```dart
+EnhancedDateRangePicker.show(
+  context: context,
+  selectionMode: DateSelectionMode.single,
+  autoClose: false, // Don't auto-close
+  onDateSelected: (startDate, endDate) {
+    // Validate date
+    if (startDate.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a future date')),
+      );
+      return; // Don't close - let user select again
+    }
+
+    // Valid - update state and close manually
+    setState(() {
+      _selectedDate = startDate;
+    });
+    Navigator.pop(context); // Close manually
+  },
+)
+```
+
+### 10. Custom Colors and Translations
 
 ```dart
 EnhancedDateRangePicker.show(
@@ -296,6 +323,12 @@ EnhancedDateRangePicker.show(
 | `showActionButtons` | `bool` | `true`  | Show/hide action buttons section |
 | `showCancelButton`  | `bool` | `true`  | Show/hide Cancel button          |
 | `showConfirmButton` | `bool` | `true`  | Show/hide Confirm button         |
+
+### Behavior Control
+
+| Parameter   | Type   | Default | Description                                                |
+| ----------- | ------ | ------- | ---------------------------------------------------------- |
+| `autoClose` | `bool` | `true`  | Auto-close after selection or require manual close control |
 
 ### Styling
 

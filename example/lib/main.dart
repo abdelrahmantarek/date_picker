@@ -97,6 +97,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
   DateTimeRange? _selectedDateRange;
   DateTimeRange? _selectedDateRangeArabic;
   DateTimeRange? _selectedDateRangeCustomColor;
+  DateTime? _selectedManualCloseDate;
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +250,43 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
                 ),
                 child: const Text('Select Date Range (Purple)'),
               ),
+
+              const SizedBox(height: 32),
+
+              // Manual Close Example
+              const Text(
+                'Manual Close Control',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              const Text(
+                'Manual Close (autoClose: false)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_selectedManualCloseDate != null)
+                Text(
+                  'Selected: ${_selectedManualCloseDate!.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _showManualCloseDatePicker,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Select Date (Manual Close)'),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'This example shows how to manually control closing.\nYou can perform validation or other actions before closing.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+              ),
             ],
           ),
         ),
@@ -347,6 +385,51 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
             );
           });
         }
+      },
+    );
+  }
+
+  // Manual Close Date Picker
+  Future<void> _showManualCloseDatePicker() async {
+    await EnhancedDateRangePicker.show(
+      context: context,
+      initialStartDate: _selectedManualCloseDate,
+      primaryColor: Colors.orange,
+      locale: 'en',
+      selectionMode: DateSelectionMode.single,
+      autoClose: false, // Don't auto-close
+      onDateSelected: (startDate, endDate) {
+        // Update the state first
+        setState(() {
+          _selectedManualCloseDate = startDate;
+        });
+
+        // Show a confirmation dialog before closing
+        showDialog(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Date Selected'),
+            content: Text(
+              'You selected: ${startDate.toLocal().toString().split(' ')[0]}\n\nDo you want to confirm this selection?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext); // Close dialog
+                  // Don't close the date picker - user can select again
+                },
+                child: const Text('Select Again'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext); // Close dialog
+                  Navigator.pop(context); // Close date picker manually
+                },
+                child: const Text('Confirm'),
+              ),
+            ],
+          ),
+        );
       },
     );
   }
