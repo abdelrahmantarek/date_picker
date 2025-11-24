@@ -530,6 +530,55 @@ EnhancedDateRangePicker.show(
 );
 ```
 
+**Embedded Widget with Manual Close**:
+
+```dart
+// State variables
+DateTime? _selectedDate;
+DateTime? _tempDate;
+
+// Embedded widget with external Save button
+Column(
+  children: [
+    EnhancedDateRangePicker(
+      initialStartDate: _tempDate,
+      selectionMode: DateSelectionMode.single,
+      isModal: false,
+      height: 450,
+      width: 400,
+      autoClose: false,
+      showActionButtons: false, // Hide default buttons
+      onDateSelected: (startDate, endDate) {
+        setState(() {
+          _tempDate = startDate; // Store temporarily
+        });
+      },
+    ),
+    SizedBox(height: 16),
+    ElevatedButton(
+      onPressed: _tempDate == null ? null : () {
+        // Validate before saving
+        if (_tempDate!.isBefore(DateTime.now())) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please select a future date!')),
+          );
+          return;
+        }
+
+        // Save the date
+        setState(() {
+          _selectedDate = _tempDate;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Date saved successfully!')),
+        );
+      },
+      child: Text('Save Date'),
+    ),
+  ],
+)
+```
+
 #### Benefits
 
 ✅ **Flexible Control**: Developer decides when to close
@@ -537,11 +586,20 @@ EnhancedDateRangePicker.show(
 ✅ **Backward Compatible**: Default behavior unchanged
 ✅ **Error Handling**: Can prevent closing on invalid selections
 ✅ **Custom Workflows**: Supports complex user flows
+✅ **Works with Embedded Widgets**: External buttons for save/cancel actions
+
+#### Use Cases
+
+- 📋 **Forms with Validation**: Validate date before accepting
+- 💬 **Confirmation Dialogs**: Show confirmation before closing
+- 🔄 **Multi-Step Workflows**: Date selection as part of larger flow
+- 📱 **Embedded Widgets**: External Save/Cancel buttons
+- ⚠️ **Error Handling**: Show errors without closing picker
 
 #### Files Modified
 
 - ✅ `lib/date_picker.dart` - Added `autoClose` parameter and logic
-- ✅ `example/lib/main.dart` - Added manual close example with confirmation dialog
+- ✅ `example/lib/main.dart` - Added manual close examples (modal + embedded)
 
 ---
 

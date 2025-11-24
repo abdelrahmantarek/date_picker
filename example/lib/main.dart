@@ -448,6 +448,8 @@ class _EmbeddedWidgetExamplesPageState
     extends State<EmbeddedWidgetExamplesPage> {
   DateTime? _selectedSingleDate;
   DateTimeRange? _selectedDateRange;
+  DateTime? _selectedManualCloseDate;
+  DateTime? _tempManualCloseDate; // Temporary storage before saving
 
   @override
   Widget build(BuildContext context) {
@@ -688,6 +690,143 @@ class _EmbeddedWidgetExamplesPageState
                 maxWidth: 600, // But won't exceed 600px width
                 maxHeight: 500, // And won't exceed 500px height
                 onDateSelected: (startDate, endDate) {},
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // Embedded Widget with Manual Close Control
+            const Text(
+              '5. Embedded Widget with Manual Close (autoClose: false)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Date picker with external Save button - validates before accepting',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+            ),
+            const SizedBox(height: 8),
+            if (_selectedManualCloseDate != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.shade300),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green.shade700),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Saved: ${_selectedManualCloseDate!.toLocal().toString().split(' ')[0]}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Center(
+              child: Column(
+                children: [
+                  EnhancedDateRangePicker(
+                    initialStartDate: _tempManualCloseDate,
+                    selectionMode: DateSelectionMode.single,
+                    primaryColor: Colors.indigo,
+                    locale: 'en',
+                    isModal: false,
+                    height: 450,
+                    width: 400,
+                    autoClose: false, // Manual close control
+                    showActionButtons: false, // Hide default buttons
+                    onDateSelected: (startDate, endDate) {
+                      // Just update the temporary selection
+                      // Don't save yet - wait for user to click Save button
+                      setState(() {
+                        _tempManualCloseDate = startDate;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: _tempManualCloseDate == null
+                        ? null
+                        : () {
+                            // Validate: only allow future dates
+                            if (_tempManualCloseDate!.isBefore(
+                              DateTime.now().subtract(const Duration(days: 1)),
+                            )) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please select today or a future date!',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Show confirmation dialog
+                            showDialog(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('Confirm Selection'),
+                                content: Text(
+                                  'Do you want to save this date?\n\n${_tempManualCloseDate!.toLocal().toString().split(' ')[0]}',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(dialogContext);
+                                    },
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedManualCloseDate =
+                                            _tempManualCloseDate;
+                                      });
+                                      Navigator.pop(dialogContext);
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Date saved successfully!',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('Save'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Date'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      disabledBackgroundColor: Colors.grey.shade300,
+                      disabledForegroundColor: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
               ),
             ),
 
