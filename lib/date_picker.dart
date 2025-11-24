@@ -954,15 +954,16 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       }
     } else {
       if (_startDate != null && _endDate != null) {
-        // Call onDateSelected callback if autoClose is true OR if callback is provided
-        if (widget.autoClose && widget.onDateSelected != null) {
-          widget.onDateSelected!(_startDate!, _endDate);
-        }
-
         // Only auto-close modal if autoClose is enabled and in modal mode
         if (widget.autoClose && widget.isModal) {
           Navigator.of(context).pop();
         }
+      }
+    }
+
+    if (_startDate != null && _endDate != null) {
+      if (widget.onDateSelected != null) {
+        widget.onDateSelected!(_startDate!, _endDate);
       }
     }
   }
