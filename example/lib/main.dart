@@ -695,12 +695,22 @@ class _EmbeddedWidgetExamplesPageState
 
             const SizedBox(height: 32),
 
-            // Embedded Widget with Manual Close Control
+            // Embedded Widget with External Save Button
             const Text(
-              '5. Embedded Widget with Manual Close (autoClose: false)',
+              '5. Embedded Widget with External Save Button',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
+            const Text(
+              'Note: autoClose only works in Modal mode. For embedded widgets, use showActionButtons: false and add external buttons.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Colors.orange,
+              ),
+            ),
+            const SizedBox(height: 4),
             const Text(
               'Date picker with external Save button - validates before accepting',
               textAlign: TextAlign.center,
@@ -744,11 +754,13 @@ class _EmbeddedWidgetExamplesPageState
                     isModal: false,
                     height: 450,
                     width: 400,
-                    autoClose: false, // Manual close control
-                    showActionButtons: false, // Hide default buttons
+                    autoClose:
+                        false, // Has no effect in embedded mode (isModal: false)
+                    showActionButtons:
+                        false, // Hide default buttons - use external Save button
                     onDateSelected: (startDate, endDate) {
-                      // Just update the temporary selection
-                      // Don't save yet - wait for user to click Save button
+                      // Update the temporary selection immediately
+                      // Don't save to final state yet - wait for user to click Save button
                       setState(() {
                         _tempManualCloseDate = startDate;
                       });

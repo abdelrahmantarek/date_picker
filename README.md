@@ -291,9 +291,9 @@ EnhancedDateRangePicker.show(
 )
 ```
 
-### 11. Manual Close Control (Embedded Widget)
+### 11. Embedded Widget with External Save Button
 
-Embedded widget with external Save button and validation.
+**Note:** `autoClose` parameter only works in **Modal mode** (`isModal: true`). For embedded widgets, use `showActionButtons: false` and add your own external buttons.
 
 ```dart
 // State variables
@@ -309,11 +309,10 @@ Column(
       isModal: false,
       height: 450,
       width: 400,
-      autoClose: false,
-      showActionButtons: false, // Hide default buttons
+      showActionButtons: false, // Hide default buttons - use external button
       onDateSelected: (startDate, endDate) {
         setState(() {
-          _tempDate = startDate; // Store temporarily
+          _tempDate = startDate; // Update selection immediately
         });
       },
     ),
@@ -397,9 +396,9 @@ EnhancedDateRangePicker.show(
 
 ### Behavior Control
 
-| Parameter   | Type   | Default | Description                                                |
-| ----------- | ------ | ------- | ---------------------------------------------------------- |
-| `autoClose` | `bool` | `true`  | Auto-close after selection or require manual close control |
+| Parameter   | Type   | Default | Description                                                                           |
+| ----------- | ------ | ------- | ------------------------------------------------------------------------------------- |
+| `autoClose` | `bool` | `true`  | Auto-close after selection or require manual close control (only works in Modal mode) |
 
 ### Styling
 
