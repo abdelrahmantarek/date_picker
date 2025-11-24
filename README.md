@@ -170,7 +170,25 @@ Center(
 )
 ```
 
-### 5. Responsive Width-Based Layout
+### 5. Flexible Size with Max Constraints
+
+Widget adapts to available space but respects maximum constraints.
+
+```dart
+EnhancedDateRangePicker(
+  isModal: false,
+  // No fixed width/height - adapts to parent
+  maxWidth: 600,  // Won't exceed 600px width
+  maxHeight: 500, // Won't exceed 500px height
+  selectionMode: DateSelectionMode.range,
+  primaryColor: Colors.teal,
+  onDateSelected: (startDate, endDate) {
+    print('Flexible: $startDate to $endDate');
+  },
+)
+```
+
+### 6. Responsive Width-Based Layout
 
 The calendar adapts to the widget's width, not just screen size.
 
@@ -194,7 +212,7 @@ EnhancedDateRangePicker(
 )
 ```
 
-### 6. Minimal Calendar (No Header, No Buttons)
+### 7. Minimal Calendar (No Header, No Buttons)
 
 Perfect for embedding in custom forms with external controls.
 
@@ -212,7 +230,7 @@ EnhancedDateRangePicker(
 )
 ```
 
-### 7. Calendar Without Title
+### 8. Calendar Without Title
 
 Cleaner look for space-constrained layouts.
 
@@ -229,7 +247,7 @@ EnhancedDateRangePicker(
 )
 ```
 
-### 8. Calendar with Only Confirm Button
+### 9. Calendar with Only Confirm Button
 
 Streamlined user flow for quick selections.
 
@@ -246,7 +264,7 @@ EnhancedDateRangePicker(
 )
 ```
 
-### 9. Manual Close Control
+### 10. Manual Close Control
 
 Control when the picker closes - perfect for validation and confirmations.
 
@@ -273,7 +291,7 @@ EnhancedDateRangePicker.show(
 )
 ```
 
-### 10. Custom Colors and Translations
+### 11. Custom Colors and Translations
 
 ```dart
 EnhancedDateRangePicker.show(
@@ -308,10 +326,12 @@ EnhancedDateRangePicker.show(
 
 ### Sizing (Embedded Mode Only)
 
-| Parameter | Type      | Default | Description                       |
-| --------- | --------- | ------- | --------------------------------- |
-| `height`  | `double?` | `null`  | Custom height for embedded widget |
-| `width`   | `double?` | `null`  | Custom width for embedded widget  |
+| Parameter   | Type      | Default | Description                                                                    |
+| ----------- | --------- | ------- | ------------------------------------------------------------------------------ |
+| `height`    | `double?` | `null`  | Fixed height for embedded widget                                               |
+| `width`     | `double?` | `null`  | Fixed width for embedded widget                                                |
+| `maxHeight` | `double?` | `null`  | Maximum height when height is not specified (widget adapts to available space) |
+| `maxWidth`  | `double?` | `null`  | Maximum width when width is not specified (widget adapts to available space)   |
 
 ### Visibility Control
 

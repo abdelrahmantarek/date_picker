@@ -384,6 +384,7 @@ EnhancedDateRangePicker(
 - ✅ **UI section visibility control** (header, title, buttons, etc.)
 - ✅ **Widget width-based responsive layout**
 - ✅ **Manual close control** (autoClose parameter)
+- ✅ **Flexible sizing with max constraints** (maxWidth, maxHeight parameters)
 
 ### Use Cases
 
@@ -541,6 +542,121 @@ EnhancedDateRangePicker.show(
 
 - ✅ `lib/date_picker.dart` - Added `autoClose` parameter and logic
 - ✅ `example/lib/main.dart` - Added manual close example with confirmation dialog
+
+---
+
+## 9. Flexible Sizing with Max Constraints
+
+**Date**: 2024-11-24
+
+### Problem
+
+When using the date picker as an embedded widget:
+
+- Fixed `width` and `height` parameters worked well for specific sizes
+- But there was no way to make the widget **flexible** (adapt to available space) while still **limiting maximum size**
+- Developers needed a way to say: "Use available space, but don't exceed X width or Y height"
+
+### Solution
+
+Added `maxWidth` and `maxHeight` parameters for flexible sizing with constraints.
+
+#### New Parameters
+
+```dart
+/// Maximum height of the picker when height is not specified
+/// Widget will adapt to available space but won't exceed this value
+/// Ignored when isModal is true or when height is specified
+final double? maxHeight;
+
+/// Maximum width of the picker when width is not specified
+/// Widget will adapt to available space but won't exceed this value
+/// Ignored when isModal is true or when width is specified
+final double? maxWidth;
+```
+
+#### Implementation Details
+
+1. **Added to Constructor**:
+
+   - `maxHeight` - Maximum height constraint
+   - `maxWidth` - Maximum width constraint
+   - Only used when `width` or `height` are not specified
+
+2. **Updated `build()` Method**:
+
+   - Wraps widget in `ConstrainedBox` when using flexible sizing
+   - Applies `maxWidth` and `maxHeight` constraints
+   - Falls back to `double.infinity` if not specified
+
+3. **Behavior**:
+   - **Fixed Size**: When `width`/`height` are specified → Uses exact dimensions
+   - **Flexible Size**: When `width`/`height` are `null` → Adapts to parent with max constraints
+   - **Hybrid**: Can mix fixed and flexible (e.g., fixed width + flexible height with maxHeight)
+
+#### Example Usage
+
+**Flexible Size with Max Constraints**:
+
+```dart
+EnhancedDateRangePicker(
+  isModal: false,
+  // No fixed width/height - adapts to available space
+  maxWidth: 600,  // But won't exceed 600px width
+  maxHeight: 500, // And won't exceed 500px height
+  selectionMode: DateSelectionMode.range,
+  primaryColor: Colors.teal,
+  onDateSelected: (startDate, endDate) {
+    print('Selected: $startDate to $endDate');
+  },
+)
+```
+
+**Fixed Width + Flexible Height**:
+
+```dart
+EnhancedDateRangePicker(
+  isModal: false,
+  width: 400,      // Fixed width
+  maxHeight: 600,  // Flexible height up to 600px
+  selectionMode: DateSelectionMode.single,
+  onDateSelected: (startDate, endDate) {},
+)
+```
+
+**Flexible Width + Fixed Height**:
+
+```dart
+EnhancedDateRangePicker(
+  isModal: false,
+  maxWidth: 800,   // Flexible width up to 800px
+  height: 500,     // Fixed height
+  selectionMode: DateSelectionMode.range,
+  onDateSelected: (startDate, endDate) {},
+)
+```
+
+#### Benefits
+
+✅ **Responsive Design**: Widget adapts to available space
+✅ **Controlled Growth**: Won't grow beyond specified limits
+✅ **Flexible Layouts**: Works great in responsive layouts
+✅ **Better UX**: Optimal use of screen real estate
+✅ **Backward Compatible**: Existing code continues to work
+
+#### Use Cases
+
+- 📱 **Responsive Web Apps**: Adapt to different viewport sizes
+- 📊 **Dashboard Widgets**: Fill available space without overflow
+- 🎨 **Flexible Forms**: Integrate seamlessly in dynamic layouts
+- 💻 **Multi-Column Layouts**: Respect column width constraints
+- 📐 **Adaptive UI**: Different sizes for different screen breakpoints
+
+#### Files Modified
+
+- ✅ `lib/date_picker.dart` - Added `maxWidth` and `maxHeight` parameters and logic
+- ✅ `example/lib/main.dart` - Added flexible sizing example
+- ✅ `README.md` - Updated sizing table and added example
 
 ---
 

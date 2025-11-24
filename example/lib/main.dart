@@ -665,6 +665,33 @@ class _EmbeddedWidgetExamplesPageState
             ),
 
             const SizedBox(height: 32),
+
+            // Flexible Size with Max Constraints
+            const Text(
+              '4. Flexible Size with Max Constraints',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'No fixed width/height - adapts to available space with max constraints',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: EnhancedDateRangePicker(
+                selectionMode: DateSelectionMode.range,
+                primaryColor: Colors.teal,
+                locale: 'en',
+                isModal: false,
+                // No width/height specified - will adapt to available space
+                maxWidth: 600, // But won't exceed 600px width
+                maxHeight: 500, // And won't exceed 500px height
+                onDateSelected: (startDate, endDate) {},
+              ),
+            ),
+
+            const SizedBox(height: 32),
           ],
         ),
       ),

@@ -35,6 +35,16 @@ class EnhancedDateRangePicker extends StatefulWidget {
   /// Ignored when isModal is true
   final double? width;
 
+  /// Maximum height of the picker when height is not specified
+  /// Widget will adapt to available space but won't exceed this value
+  /// Ignored when isModal is true or when height is specified
+  final double? maxHeight;
+
+  /// Maximum width of the picker when width is not specified
+  /// Widget will adapt to available space but won't exceed this value
+  /// Ignored when isModal is true or when width is specified
+  final double? maxWidth;
+
   /// Show/hide the entire header section (title and selected dates)
   final bool showHeader;
 
@@ -71,6 +81,8 @@ class EnhancedDateRangePicker extends StatefulWidget {
     this.isModal = true,
     this.height,
     this.width,
+    this.maxHeight,
+    this.maxWidth,
     this.showHeader = true,
     this.showTitle = true,
     this.showSelectedDates = true,
@@ -268,7 +280,7 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       );
     } else {
       // Standalone widget style
-      return Container(
+      Widget containerWidget = Container(
         height: widget.height,
         width: widget.width,
         decoration: BoxDecoration(
@@ -278,6 +290,19 @@ class _EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         ),
         child: content,
       );
+
+      // If width or height is not specified, use ConstrainedBox with maxWidth/maxHeight
+      if (widget.width == null || widget.height == null) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.maxWidth ?? double.infinity,
+            maxHeight: widget.maxHeight ?? double.infinity,
+          ),
+          child: containerWidget,
+        );
+      }
+
+      return containerWidget;
     }
   }
 
