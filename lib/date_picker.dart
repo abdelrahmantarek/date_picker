@@ -207,6 +207,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   late ScrollController _scrollController;
   bool _localeInitialized = false;
 
+  /// Keys for each day cell to support precise auto-scrolling
+  final Map<String, GlobalKey> _dayCellKeys = {};
+
   /// Public getters for accessing selected dates (useful when autoClose: false)
   DateTime? get selectedStartDate => _startDate;
   DateTime? get selectedEndDate => _endDate;
@@ -261,6 +264,11 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         });
       }
     }
+  }
+
+  /// Format a stable key string for a given date (YYYY-MM-DD)
+  String _formatDateKey(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -659,6 +667,12 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     final isEndDate = _endDate != null && _isSameDay(date, _endDate!);
     final isInRange = _isDateInRange(date);
 
+    // Key for this specific day cell to support precise auto-scrolling
+    final cellKey = _dayCellKeys.putIfAbsent(
+      _formatDateKey(date),
+      () => GlobalKey(),
+    );
+
     // Check if date is beyond 30-day range when start date is selected (only for range mode)
     final isBeyondMaxRange =
         widget.selectionMode == DateSelectionMode.range &&
@@ -701,6 +715,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
 
     return Expanded(
       child: GestureDetector(
+        key: cellKey,
         onTap: isSelectable ? () => _onDateTap(date) : null,
         child: Container(
           height: 44,
@@ -776,16 +791,25 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       }
 
       // Notify about selection changes
-      if (widget.onDateChanged != null) {
+      if (widget.onDateChanged != null && _startDate != null) {
         widget.onDateChanged!(_startDate!, _endDate);
       }
     });
+
+    // After updating selection, smoothly scroll to make the selected date visible
+    if (_startDate != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelectedDateCell(_startDate!);
+      });
+    }
 
     if (shouldAutoConfirm) {
       _confirmSelection();
     }
   }
 
+  /// Backwards-compatible month-level scroll used on initial load.
+  /// Keeps previous behavior but is no longer used for per-tap scrolling.
   void _scrollToSelectedDates() {
     if (_startDate == null || !_scrollController.hasClients) return;
 
@@ -848,6 +872,26 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         curve: Curves.easeInOut,
       );
     }
+  }
+
+  /// Smoothly scroll to ensure the given date's cell is visible (and roughly centered).
+  /// This is used after user selections for precise, cell-level auto-scrolling.
+  void _scrollToSelectedDateCell(DateTime date) {
+    if (!_scrollController.hasClients) return;
+
+    final key = _dayCellKeys[_formatDateKey(date)];
+    if (key == null) return;
+
+    final context = key.currentContext;
+    if (context == null) return;
+
+    // Use Scrollable.ensureVisible for precise scrolling to the day cell
+    Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeInOut,
+      alignment: 0.5, // try to center the cell vertically when possible
+    );
   }
 
   Widget _buildActionButtons() {
