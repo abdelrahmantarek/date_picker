@@ -1,0 +1,590 @@
+import 'package:flutter/material.dart';
+import 'package:date_picker/date_picker.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Date Picker Examples',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const DatePickerHomePage(),
+    );
+  }
+}
+
+class DatePickerHomePage extends StatelessWidget {
+  const DatePickerHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Date Picker Examples'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Choose Example Type',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ModalExamplesPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('Modal Bottom Sheet Examples'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EmbeddedWidgetExamplesPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.calendar_month),
+              label: const Text('Embedded Widget Examples'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ModalExamplesPage extends StatefulWidget {
+  const ModalExamplesPage({super.key});
+
+  @override
+  State<ModalExamplesPage> createState() => _ModalExamplesPageState();
+}
+
+class _ModalExamplesPageState extends State<ModalExamplesPage> {
+  DateTime? _selectedSingleDate;
+  DateTime? _selectedSingleDateArabic;
+  DateTimeRange? _selectedDateRange;
+  DateTimeRange? _selectedDateRangeArabic;
+  DateTimeRange? _selectedDateRangeCustomColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Enhanced Date Picker Examples'),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const Text(
+                'Enhanced Date Picker Examples',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+
+              // Single Date Selection
+              const Text(
+                'Single Date Selection',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              const Text(
+                'English',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_selectedSingleDate != null)
+                Text(
+                  'Selected: ${_selectedSingleDate!.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _showSingleDatePicker,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Select Single Date'),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                'عربي',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_selectedSingleDateArabic != null)
+                Text(
+                  'التاريخ المختار: ${_selectedSingleDateArabic!.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _showSingleDatePickerArabic,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('اختر تاريخ واحد'),
+              ),
+
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+
+              // Date Range Selection
+              const Text(
+                'Date Range Selection',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              const Text(
+                'English',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_selectedDateRange != null)
+                Text(
+                  'Selected: ${_selectedDateRange!.start.toLocal().toString().split(' ')[0]} - ${_selectedDateRange!.end.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _showDateRangePicker,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Select Date Range'),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                'عربي',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_selectedDateRangeArabic != null)
+                Text(
+                  'النطاق المختار: ${_selectedDateRangeArabic!.start.toLocal().toString().split(' ')[0]} - ${_selectedDateRangeArabic!.end.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _showDateRangePickerArabic,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('اختر نطاق التاريخ'),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                'Custom Color (Purple)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_selectedDateRangeCustomColor != null)
+                Text(
+                  'Selected: ${_selectedDateRangeCustomColor!.start.toLocal().toString().split(' ')[0]} - ${_selectedDateRangeCustomColor!.end.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _showDateRangePickerCustomColor,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Select Date Range (Purple)'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Single Date Picker - English
+  Future<void> _showSingleDatePicker() async {
+    await EnhancedDateRangePicker.show(
+      context: context,
+      initialStartDate: _selectedSingleDate,
+      primaryColor: Colors.blue,
+      locale: 'en',
+      selectionMode: DateSelectionMode.single,
+      onDateSelected: (startDate, endDate) {
+        setState(() {
+          _selectedSingleDate = startDate;
+        });
+      },
+    );
+  }
+
+  // Single Date Picker - Arabic
+  Future<void> _showSingleDatePickerArabic() async {
+    await EnhancedDateRangePicker.show(
+      context: context,
+      initialStartDate: _selectedSingleDateArabic,
+      primaryColor: Colors.green,
+      locale: 'ar',
+      selectionMode: DateSelectionMode.single,
+      onDateSelected: (startDate, endDate) {
+        setState(() {
+          _selectedSingleDateArabic = startDate;
+        });
+      },
+    );
+  }
+
+  // Date Range Picker - English
+  Future<void> _showDateRangePicker() async {
+    await EnhancedDateRangePicker.show(
+      context: context,
+      initialStartDate: _selectedDateRange?.start,
+      initialEndDate: _selectedDateRange?.end,
+      primaryColor: Colors.blue,
+      locale: 'en',
+      selectionMode: DateSelectionMode.range,
+      onDateSelected: (startDate, endDate) {
+        if (endDate != null) {
+          setState(() {
+            _selectedDateRange = DateTimeRange(start: startDate, end: endDate);
+          });
+        }
+      },
+    );
+  }
+
+  // Date Range Picker - Arabic
+  Future<void> _showDateRangePickerArabic() async {
+    await EnhancedDateRangePicker.show(
+      context: context,
+      initialStartDate: _selectedDateRangeArabic?.start,
+      initialEndDate: _selectedDateRangeArabic?.end,
+      primaryColor: Colors.green,
+      locale: 'ar',
+      selectionMode: DateSelectionMode.range,
+      onDateSelected: (startDate, endDate) {
+        if (endDate != null) {
+          setState(() {
+            _selectedDateRangeArabic = DateTimeRange(
+              start: startDate,
+              end: endDate,
+            );
+          });
+        }
+      },
+    );
+  }
+
+  // Date Range Picker - Custom Color
+  Future<void> _showDateRangePickerCustomColor() async {
+    await EnhancedDateRangePicker.show(
+      context: context,
+      initialStartDate: _selectedDateRangeCustomColor?.start,
+      initialEndDate: _selectedDateRangeCustomColor?.end,
+      primaryColor: Colors.purple,
+      locale: 'en',
+      selectionMode: DateSelectionMode.range,
+      onDateSelected: (startDate, endDate) {
+        if (endDate != null) {
+          setState(() {
+            _selectedDateRangeCustomColor = DateTimeRange(
+              start: startDate,
+              end: endDate,
+            );
+          });
+        }
+      },
+    );
+  }
+}
+
+// Embedded Widget Examples Page
+class EmbeddedWidgetExamplesPage extends StatefulWidget {
+  const EmbeddedWidgetExamplesPage({super.key});
+
+  @override
+  State<EmbeddedWidgetExamplesPage> createState() =>
+      _EmbeddedWidgetExamplesPageState();
+}
+
+class _EmbeddedWidgetExamplesPageState
+    extends State<EmbeddedWidgetExamplesPage> {
+  DateTime? _selectedSingleDate;
+  DateTimeRange? _selectedDateRange;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Embedded Widget Examples'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Date Picker as Embedded Widget',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'The date picker can be embedded directly in your screen layout.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 32),
+
+            // Single Date Selection Example
+            const Text(
+              'Single Date Selection',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (_selectedSingleDate != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Selected: ${_selectedSingleDate!.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            Center(
+              child: EnhancedDateRangePicker(
+                initialStartDate: _selectedSingleDate,
+                selectionMode: DateSelectionMode.single,
+                primaryColor: Colors.blue,
+                locale: 'en',
+                isModal: false,
+                height: 500,
+                width: 400,
+                onDateSelected: (startDate, endDate) {
+                  setState(() {
+                    _selectedSingleDate = startDate;
+                  });
+                },
+              ),
+            ),
+
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 32),
+
+            // Responsive Width Example
+            const Text(
+              'Responsive Width Example',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Small width (350px) - Shows single column layout even on large screens',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: EnhancedDateRangePicker(
+                selectionMode: DateSelectionMode.single,
+                primaryColor: Colors.orange,
+                locale: 'en',
+                isModal: false,
+                height: 500,
+                width: 350, // Small width - forces single column
+                onDateSelected: (startDate, endDate) {},
+              ),
+            ),
+
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 32),
+
+            // Date Range Selection Example
+            const Text(
+              'Date Range Selection',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (_selectedDateRange != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Selected: ${_selectedDateRange!.start.toLocal().toString().split(' ')[0]} - ${_selectedDateRange!.end.toLocal().toString().split(' ')[0]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            Center(
+              child: EnhancedDateRangePicker(
+                initialStartDate: _selectedDateRange?.start,
+                initialEndDate: _selectedDateRange?.end,
+                selectionMode: DateSelectionMode.range,
+                primaryColor: Colors.purple,
+                locale: 'en',
+                isModal: false,
+                height: 500,
+                width: 450,
+                onDateSelected: (startDate, endDate) {
+                  if (endDate != null) {
+                    setState(() {
+                      _selectedDateRange = DateTimeRange(
+                        start: startDate,
+                        end: endDate,
+                      );
+                    });
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 32),
+
+            // Customization Examples
+            const Text(
+              'Visibility Customization Examples',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+
+            // Minimal calendar - no header, no buttons
+            const Text(
+              '1. Minimal Calendar (No Header, No Buttons)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: EnhancedDateRangePicker(
+                selectionMode: DateSelectionMode.single,
+                primaryColor: Colors.teal,
+                locale: 'en',
+                isModal: false,
+                height: 400,
+                width: 350,
+                showHeader: false,
+                showActionButtons: false,
+                onDateSelected: (startDate, endDate) {},
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // Calendar without title
+            const Text(
+              '2. Calendar Without Title',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: EnhancedDateRangePicker(
+                selectionMode: DateSelectionMode.range,
+                primaryColor: Colors.indigo,
+                locale: 'en',
+                isModal: false,
+                height: 500,
+                width: 400,
+                showTitle: false,
+                showActionButtons: false,
+                onDateSelected: (startDate, endDate) {},
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // Calendar with only Confirm button
+            const Text(
+              '3. Calendar With Only Confirm Button',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: EnhancedDateRangePicker(
+                selectionMode: DateSelectionMode.single,
+                primaryColor: Colors.deepOrange,
+                locale: 'en',
+                isModal: false,
+                height: 500,
+                width: 400,
+                showCancelButton: false,
+                onDateSelected: (startDate, endDate) {},
+              ),
+            ),
+
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
