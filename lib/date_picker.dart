@@ -942,11 +942,6 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   void _confirmSelection() {
     if (widget.selectionMode == DateSelectionMode.single) {
       if (_startDate != null) {
-        // Call onDateSelected callback if autoClose is true OR if callback is provided
-        if (widget.autoClose && widget.onDateSelected != null) {
-          widget.onDateSelected!(_startDate!, null);
-        }
-
         // Only auto-close modal if autoClose is enabled and in modal mode
         if (widget.autoClose && widget.isModal) {
           Navigator.of(context).pop();
