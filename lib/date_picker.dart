@@ -228,6 +228,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   /// Keys for each day cell to support precise auto-scrolling
   final Map<String, GlobalKey> _dayCellKeys = {};
 
+  /// Track which date is currently being hovered
+  DateTime? _hoveredDate;
+
   /// Public getters for accessing selected dates (useful when autoClose: false)
   DateTime? get selectedStartDate => _startDate;
   DateTime? get selectedEndDate => _endDate;
@@ -755,6 +758,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     final isStartDate = _startDate != null && _isSameDay(date, _startDate!);
     final isEndDate = _endDate != null && _isSameDay(date, _endDate!);
     final isInRange = _isDateInRange(date);
+    final isHovered = _hoveredDate != null && _isSameDay(date, _hoveredDate!);
 
     // Key for this specific day cell to support precise auto-scrolling
     final cellKey = _dayCellKeys.putIfAbsent(
@@ -794,6 +798,11 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       backgroundColor = widget.primaryColor.withValues(alpha: 0.2);
       textColor = widget.primaryColor;
       borderRadius = BorderRadius.circular(8);
+    } else if (isHovered && isSelectable) {
+      // Hover effect for selectable dates
+      backgroundColor = widget.primaryColor.withValues(alpha: 0.1);
+      textColor = widget.primaryColor;
+      borderRadius = BorderRadius.circular(20);
     } else if (isToday) {
       border = Border.all(color: widget.primaryColor, width: 2);
       textColor = widget.primaryColor;
@@ -803,32 +812,51 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     }
 
     return Expanded(
-      child: GestureDetector(
-        key: cellKey,
-        onTap: isSelectable ? () => _onDateTap(date) : null,
-        child: Container(
-          height: 44,
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: borderRadius,
-            border: border,
-          ),
-          child: Center(
-            child: Text(
-              '${date.day}',
-              style: TextStyle(
-                color: textColor,
-                fontWeight: (isStartDate || isEndDate)
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                fontSize: 14,
+      child: MouseRegion(
+        cursor: isSelectable
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        onEnter: isSelectable ? (_) => _onDayHover(date) : null,
+        onExit: isSelectable ? (_) => _onDayHoverExit() : null,
+        child: GestureDetector(
+          key: cellKey,
+          onTap: isSelectable ? () => _onDateTap(date) : null,
+          child: Container(
+            height: 44,
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: borderRadius,
+              border: border,
+            ),
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: (isStartDate || isEndDate)
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _onDayHover(DateTime date) {
+    setState(() {
+      _hoveredDate = date;
+    });
+  }
+
+  void _onDayHoverExit() {
+    setState(() {
+      _hoveredDate = null;
+    });
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
