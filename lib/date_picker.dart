@@ -45,6 +45,15 @@ class EnhancedDateRangePicker extends StatefulWidget {
 
   final int maxRangeDates;
 
+  /// Earliest selectable date in the calendar (inclusive).
+  /// If null, the earliest selectable date defaults to today (matching
+  /// the previous behavior where past dates were disabled).
+  final DateTime? minDate;
+
+  /// Latest selectable date in the calendar (inclusive).
+  /// If null, there is no upper bound on selectable dates.
+  final DateTime? maxDate;
+
   /// Maximum width of the picker when width is not specified
   /// Widget will adapt to available space but won't exceed this value
   /// Ignored when isModal is true or when width is specified
@@ -97,6 +106,8 @@ class EnhancedDateRangePicker extends StatefulWidget {
     this.showConfirmButton = true,
     this.autoClose = true,
     this.maxRangeDates = 10000,
+    this.minDate,
+    this.maxDate,
   });
 
   @override
@@ -108,6 +119,8 @@ class EnhancedDateRangePicker extends StatefulWidget {
     required BuildContext context,
     DateTime? initialStartDate,
     DateTime? initialEndDate,
+    DateTime? minDate,
+    DateTime? maxDate,
     required Function(DateTime startDate, DateTime? endDate) onDateSelected,
     Function(DateTime startDate, DateTime? endDate)? onDateChanged,
     String title = '',
@@ -124,6 +137,8 @@ class EnhancedDateRangePicker extends StatefulWidget {
       builder: (context) => EnhancedDateRangePicker(
         initialStartDate: initialStartDate,
         initialEndDate: initialEndDate,
+        minDate: minDate,
+        maxDate: maxDate,
         onDateSelected: onDateSelected,
         onDateChanged: onDateChanged,
         title: title,
@@ -662,10 +677,32 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
 
   Widget _buildDayCell(DateTime date, DateTime monthDate) {
     final isCurrentMonth = date.month == monthDate.month;
-    final isToday = _isSameDay(date, DateTime.now());
-    final isPastDate = date.isBefore(
-      DateTime.now().subtract(const Duration(days: 1)),
-    );
+    final today = DateTime.now();
+    final isToday = _isSameDay(date, today);
+
+    // Compute effective selectable boundaries
+    // - If minDate is not provided, default to "today" (previous behavior)
+    // - If maxDate is not provided, there is no upper bound
+    final DateTime effectiveMinDate = widget.minDate != null
+        ? DateTime(
+            widget.minDate!.year,
+            widget.minDate!.month,
+            widget.minDate!.day,
+          )
+        : DateTime(today.year, today.month, today.day);
+
+    final DateTime? effectiveMaxDate = widget.maxDate != null
+        ? DateTime(
+            widget.maxDate!.year,
+            widget.maxDate!.month,
+            widget.maxDate!.day,
+          )
+        : null;
+
+    final bool isBeforeMinDate = date.isBefore(effectiveMinDate);
+    final bool isAfterMaxDate =
+        effectiveMaxDate != null && date.isAfter(effectiveMaxDate);
+    final bool isOutOfSelectableRange = isBeforeMinDate || isAfterMaxDate;
     final isStartDate = _startDate != null && _isSameDay(date, _startDate!);
     final isEndDate = _endDate != null && _isSameDay(date, _endDate!);
     final isInRange = _isDateInRange(date);
@@ -690,7 +727,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     Border? border;
     bool isSelectable = true;
 
-    if (isPastDate) {
+    if (isOutOfSelectableRange) {
       textColor = Colors.grey[400];
       isSelectable = false;
     } else if (isBeyondMaxRange) {
