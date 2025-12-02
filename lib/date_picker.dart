@@ -699,9 +699,12 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
           )
         : null;
 
-    final bool isBeforeMinDate = date.isBefore(effectiveMinDate);
+    // Normalize the date to compare (strip time component)
+    final DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+
+    final bool isBeforeMinDate = normalizedDate.isBefore(effectiveMinDate);
     final bool isAfterMaxDate =
-        effectiveMaxDate != null && date.isAfter(effectiveMaxDate);
+        effectiveMaxDate != null && normalizedDate.isAfter(effectiveMaxDate);
     final bool isOutOfSelectableRange = isBeforeMinDate || isAfterMaxDate;
     final isStartDate = _startDate != null && _isSameDay(date, _startDate!);
     final isEndDate = _endDate != null && _isSameDay(date, _endDate!);
@@ -815,9 +818,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         } else {
           // Selecting end date
           if (date.isAfter(_startDate!)) {
-            // Check if the range is within 30 days
+            // Check if the range is within the allowed maxRangeDates
             final daysDifference = date.difference(_startDate!).inDays;
-            if (daysDifference < 30) {
+            if (daysDifference < widget.maxRangeDates) {
               _endDate = date;
               _isSelectingEndDate = false;
             }
