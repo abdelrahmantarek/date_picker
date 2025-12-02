@@ -897,89 +897,127 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     }
   }
 
-  /// Backwards-compatible month-level scroll used on initial load.
-  /// Keeps previous behavior but is no longer used for per-tap scrolling.
+  /// Scroll to the selected date with guaranteed precision.
+  /// Uses a two-phase approach: first jump to approximate position,
+  /// then use GlobalKey for exact cell positioning.
   void _scrollToSelectedDates() {
     if (_startDate == null || !_scrollController.hasClients) return;
+
+    _scrollToDateWithPrecision(_startDate!);
+  }
+
+  /// Two-phase scroll: first jump to the month area, then precisely to the cell.
+  void _scrollToDateWithPrecision(DateTime date) {
+    if (!_scrollController.hasClients) return;
+
+    // Calculate the month index relative to the base focused month
+    final baseFocusedMonth = DateTime(_focusedDay.year, _focusedDay.month, 1);
+    final targetMonth = DateTime(date.year, date.month, 1);
+    final monthIndex =
+        (targetMonth.year - baseFocusedMonth.year) * 12 +
+        (targetMonth.month - baseFocusedMonth.month);
+
+    if (monthIndex < 0) return; // Date is before the start
 
     // Determine if we're using two-column layout
     final screenWidth = MediaQuery.of(context).size.width;
     final isLargeScreen = screenWidth > 600;
 
-    // Calculate which month the start date is in relative to the base focused month
-    final baseFocusedMonth = DateTime(_focusedDay.year, _focusedDay.month, 1);
-    final startMonth = DateTime(_startDate!.year, _startDate!.month, 1);
+    // Use the ListView's item index to jump
+    final listIndex = isLargeScreen ? (monthIndex ~/ 2) : monthIndex;
 
-    // Calculate the difference in months from the base focused month
-    final monthDifference =
-        (startMonth.year - baseFocusedMonth.year) * 12 +
-        (startMonth.month - baseFocusedMonth.month);
+    // First, jump to make sure the target month is built in the ListView
+    // We use jumpTo with estimated position to trigger building of that section
+    _scrollController.jumpTo(0); // Reset first
 
-    // Scroll if the selected date is not in the currently visible area
-    // Handle both forward and backward scrolling within the 6-month range
-    if (monthDifference >= 0 && monthDifference < 6) {
-      // Calculate scroll offset based on month difference
-      // Each month takes approximately 300 pixels (header + calendar grid + margin)
-      const monthHeight = 300.0;
+    // Schedule the precise scroll after the frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
 
-      // For large screens with 2 columns, we need to scroll to the row containing the month
-      // For mobile, we scroll to the specific month
-      final scrollOffset = isLargeScreen
-          ? (monthDifference ~/ 2) *
-                monthHeight // Scroll to the row (2 months per row)
-          : monthDifference * monthHeight; // Scroll to the specific month
+      // Try to find the GlobalKey for the date
+      final key = _dayCellKeys[_formatDateKey(date)];
 
-      // Get current scroll position to determine if we need to scroll
-      final currentOffset = _scrollController.offset;
-
-      // Only scroll if we're not already at the target position (with some tolerance)
-      if ((scrollOffset - currentOffset).abs() > 50) {
-        // Ensure we don't scroll beyond the available content
-        final maxScrollExtent = _scrollController.position.maxScrollExtent;
-        final targetOffset = scrollOffset.clamp(0.0, maxScrollExtent);
-
-        // Smooth scroll to the selected month
-        _scrollController.animateTo(
-          targetOffset,
-          duration: const Duration(milliseconds: 800),
+      if (key?.currentContext != null) {
+        // Key exists, use precise scrolling
+        Scrollable.ensureVisible(
+          key!.currentContext!,
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
+          alignment: 0.3, // Position slightly above center
         );
+      } else {
+        // Key doesn't exist yet, scroll to estimated position and retry
+        _scrollToMonthAndRetry(date, listIndex, isLargeScreen, 0);
       }
-    } else if (monthDifference < 0) {
-      // If the date is before the base focused month, scroll to the beginning
-      _scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 800),
-        curve: Curves.easeInOut,
-      );
-    } else if (monthDifference >= 6) {
-      // If the date is beyond the 6-month range, scroll to the maximum extent
-      final maxScrollExtent = _scrollController.position.maxScrollExtent;
-      _scrollController.animateTo(
-        maxScrollExtent,
-        duration: const Duration(milliseconds: 800),
-        curve: Curves.easeInOut,
-      );
-    }
+    });
   }
 
-  /// Smoothly scroll to ensure the given date's cell is visible (and roughly centered).
+  /// Scroll to the month area and retry finding the cell.
+  void _scrollToMonthAndRetry(
+    DateTime date,
+    int listIndex,
+    bool isLargeScreen,
+    int attempt,
+  ) {
+    if (!mounted || !_scrollController.hasClients || attempt > 5) return;
+
+    // Estimate month height (header + weekdays + max 6 weeks + margin)
+    // Header: ~50px, weekdays: ~30px, weeks: 6*48=288px, margin: 24px = ~392px
+    const estimatedMonthHeight = 380.0;
+
+    final estimatedOffset = listIndex * estimatedMonthHeight;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final targetOffset = estimatedOffset.clamp(0.0, maxScroll);
+
+    // Jump to the estimated position
+    _scrollController.jumpTo(targetOffset);
+
+    // Wait for the frame to build and try again
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final key = _dayCellKeys[_formatDateKey(date)];
+
+      if (key?.currentContext != null) {
+        // Found it! Use precise scrolling
+        Scrollable.ensureVisible(
+          key!.currentContext!,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOut,
+          alignment: 0.3,
+        );
+      } else {
+        // Still not found, try again with increased offset
+        _scrollToMonthAndRetry(date, listIndex + 1, isLargeScreen, attempt + 1);
+      }
+    });
+  }
+
+  /// Smoothly scroll to ensure the given date's cell is visible.
   /// This is used after user selections for precise, cell-level auto-scrolling.
   void _scrollToSelectedDateCell(DateTime date) {
     if (!_scrollController.hasClients) return;
 
     final key = _dayCellKeys[_formatDateKey(date)];
-    if (key == null) return;
+    if (key == null) {
+      // Key not created yet, try the full precision scroll
+      _scrollToDateWithPrecision(date);
+      return;
+    }
 
-    final context = key.currentContext;
-    if (context == null) return;
+    final ctx = key.currentContext;
+    if (ctx == null) {
+      // Context not available, try the full precision scroll
+      _scrollToDateWithPrecision(date);
+      return;
+    }
 
     // Use Scrollable.ensureVisible for precise scrolling to the day cell
     Scrollable.ensureVisible(
-      context,
-      duration: const Duration(milliseconds: 450),
+      ctx,
+      duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
-      alignment: 0.5, // try to center the cell vertically when possible
+      alignment: 0.3, // Position slightly above center for better UX
     );
   }
 
