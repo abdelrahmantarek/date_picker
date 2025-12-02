@@ -556,20 +556,33 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
               1,
             );
 
-            final secondMonthDate = DateTime(
-              _focusedDay.year,
-              _focusedDay.month + secondMonthIndex,
-              1,
-            );
+            // Only show second month if it's within monthsToShow range
+            if (secondMonthIndex < monthsToShow) {
+              final secondMonthDate = DateTime(
+                _focusedDay.year,
+                _focusedDay.month + secondMonthIndex,
+                1,
+              );
 
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildMonthCalendar(firstMonthDate)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildMonthCalendar(secondMonthDate)),
-              ],
-            );
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildMonthCalendar(firstMonthDate)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildMonthCalendar(secondMonthDate)),
+                ],
+              );
+            } else {
+              // Last row with only one month (odd number of months)
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildMonthCalendar(firstMonthDate)),
+                  const SizedBox(width: 16),
+                  const Expanded(child: SizedBox()), // Empty placeholder
+                ],
+              );
+            }
           } else {
             // Show 1 month per row (mobile)
             final monthDate = DateTime(
