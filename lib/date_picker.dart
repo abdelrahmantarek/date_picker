@@ -247,8 +247,12 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     _startDate = widget.initialStartDate;
     _endDate = widget.initialEndDate;
 
-    // Always start from current month and reset selection state
-    _focusedDay = DateTime.now();
+    // Start from minDate if provided, otherwise from current month
+    if (widget.minDate != null) {
+      _focusedDay = DateTime(widget.minDate!.year, widget.minDate!.month, 1);
+    } else {
+      _focusedDay = DateTime.now();
+    }
     _isSelectingEndDate = false; // Always start fresh with start date selection
 
     // Initialize scroll controller
@@ -507,13 +511,39 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
 
     final isLargeScreen = effectiveWidth > 600; // Tablet/Desktop threshold
 
+    // Calculate the number of months to display
+    final int monthsToShow;
+    if (widget.minDate != null && widget.maxDate != null) {
+      // Calculate months between minDate and maxDate
+      final minMonth = DateTime(widget.minDate!.year, widget.minDate!.month, 1);
+      final maxMonth = DateTime(widget.maxDate!.year, widget.maxDate!.month, 1);
+      monthsToShow =
+          ((maxMonth.year - minMonth.year) * 12 +
+                  (maxMonth.month - minMonth.month) +
+                  1)
+              .clamp(1, 24); // At least 1 month, max 24 months (2 years)
+    } else if (widget.maxDate != null) {
+      // From current month to maxDate
+      final now = DateTime.now();
+      final minMonth = DateTime(now.year, now.month, 1);
+      final maxMonth = DateTime(widget.maxDate!.year, widget.maxDate!.month, 1);
+      monthsToShow =
+          ((maxMonth.year - minMonth.year) * 12 +
+                  (maxMonth.month - minMonth.month) +
+                  1)
+              .clamp(1, 24);
+    } else {
+      // Default: show 6 months
+      monthsToShow = 6;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: ListView.builder(
         controller: _scrollController,
         itemCount: isLargeScreen
-            ? 3
-            : 6, // 3 rows of 2 months or 6 single months
+            ? (monthsToShow / 2).ceil()
+            : monthsToShow, // rows of 2 months or single months
         itemBuilder: (context, index) {
           if (isLargeScreen) {
             // Show 2 months side-by-side
