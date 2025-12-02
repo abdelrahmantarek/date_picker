@@ -511,27 +511,30 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
 
     final isLargeScreen = effectiveWidth > 600; // Tablet/Desktop threshold
 
-    // Calculate the number of months to display
+    // Calculate the number of months to display based on minDate and maxDate
     final int monthsToShow;
     if (widget.minDate != null && widget.maxDate != null) {
-      // Calculate months between minDate and maxDate
+      // Show all months between minDate and maxDate (no limit)
       final minMonth = DateTime(widget.minDate!.year, widget.minDate!.month, 1);
       final maxMonth = DateTime(widget.maxDate!.year, widget.maxDate!.month, 1);
-      monthsToShow =
-          ((maxMonth.year - minMonth.year) * 12 +
-                  (maxMonth.month - minMonth.month) +
-                  1)
-              .clamp(1, 24); // At least 1 month, max 24 months (2 years)
+      final calculatedMonths =
+          (maxMonth.year - minMonth.year) * 12 +
+          (maxMonth.month - minMonth.month) +
+          1;
+      monthsToShow = calculatedMonths < 1 ? 1 : calculatedMonths;
     } else if (widget.maxDate != null) {
-      // From current month to maxDate
+      // From current month to maxDate (no limit)
       final now = DateTime.now();
       final minMonth = DateTime(now.year, now.month, 1);
       final maxMonth = DateTime(widget.maxDate!.year, widget.maxDate!.month, 1);
-      monthsToShow =
-          ((maxMonth.year - minMonth.year) * 12 +
-                  (maxMonth.month - minMonth.month) +
-                  1)
-              .clamp(1, 24);
+      final calculatedMonths =
+          (maxMonth.year - minMonth.year) * 12 +
+          (maxMonth.month - minMonth.month) +
+          1;
+      monthsToShow = calculatedMonths < 1 ? 1 : calculatedMonths;
+    } else if (widget.minDate != null) {
+      // From minDate, show 12 months by default
+      monthsToShow = 12;
     } else {
       // Default: show 6 months
       monthsToShow = 6;
