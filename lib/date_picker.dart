@@ -43,6 +43,8 @@ class EnhancedDateRangePicker extends StatefulWidget {
   /// Ignored when isModal is true or when height is specified
   final double? maxHeight;
 
+  final int maxRangeDates;
+
   /// Maximum width of the picker when width is not specified
   /// Widget will adapt to available space but won't exceed this value
   /// Ignored when isModal is true or when width is specified
@@ -94,6 +96,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     this.showCancelButton = true,
     this.showConfirmButton = true,
     this.autoClose = true,
+    this.maxRangeDates = 10000,
   });
 
   @override
@@ -679,7 +682,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         _startDate != null &&
         _isSelectingEndDate &&
         date.isAfter(_startDate!) &&
-        date.difference(_startDate!).inDays >= 30;
+        date.difference(_startDate!).inDays >= widget.maxRangeDates;
 
     Color? backgroundColor;
     Color? textColor;
