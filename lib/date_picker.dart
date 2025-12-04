@@ -885,22 +885,24 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       } else {
         // Date range selection mode
         if (_startDate == null || _isSelectingEndDate == false) {
-          // Selecting start date - can be any future date
-          _startDate = date;
+          // Selecting start date - set time to 00:00:00
+          _startDate = DateTime(date.year, date.month, date.day, 0, 0, 0);
           _endDate = null;
           _isSelectingEndDate = true;
         } else {
           // Selecting end date
-          if (date.isAfter(_startDate!)) {
+          // Allow same day selection or any date after start date
+          if (date.isAfter(_startDate!) || _isSameDay(date, _startDate!)) {
             // Check if the range is within the allowed maxRangeDates
             final daysDifference = date.difference(_startDate!).inDays;
             if (daysDifference < widget.maxRangeDates) {
-              _endDate = date;
+              // Set end date with time 23:59:59
+              _endDate = DateTime(date.year, date.month, date.day, 23, 59, 59);
               _isSelectingEndDate = false;
             }
           } else {
             // If selected date is before start date, reset and start over
-            _startDate = date;
+            _startDate = DateTime(date.year, date.month, date.day, 0, 0, 0);
             _endDate = null;
             _isSelectingEndDate = true;
           }
