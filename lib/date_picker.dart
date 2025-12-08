@@ -129,6 +129,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     String locale = 'en',
     DateSelectionMode selectionMode = DateSelectionMode.range,
     bool autoClose = true,
+    int maxRangeDates = 10000,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -148,7 +149,72 @@ class EnhancedDateRangePicker extends StatefulWidget {
         selectionMode: selectionMode,
         isModal: true, // Always true for modal display
         autoClose: autoClose,
+        maxRangeDates: maxRangeDates,
       ),
+    );
+  }
+
+  /// Show the date picker as a centered dialog
+  static Future<void> showAsDialog({
+    required BuildContext context,
+    DateTime? initialStartDate,
+    DateTime? initialEndDate,
+    DateTime? minDate,
+    DateTime? maxDate,
+    required Function(DateTime startDate, DateTime? endDate) onDateSelected,
+    Function(DateTime startDate, DateTime? endDate)? onDateChanged,
+    String title = '',
+    Color primaryColor = const Color(0xFF2196F3),
+    Map<String, String>? translations,
+    String locale = 'en',
+    DateSelectionMode selectionMode = DateSelectionMode.range,
+    bool autoClose = true,
+    int maxRangeDates = 10000,
+    double? dialogWidth,
+    double? dialogHeight,
+  }) {
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        final screenSize = MediaQuery.of(context).size;
+        final width =
+            dialogWidth ??
+            (screenSize.width > 600 ? 700 : screenSize.width * 0.95);
+        final height = dialogHeight ?? (screenSize.height * 0.85);
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: EnhancedDateRangePicker(
+              initialStartDate: initialStartDate,
+              initialEndDate: initialEndDate,
+              minDate: minDate,
+              maxDate: maxDate,
+              onDateSelected: onDateSelected,
+              onDateChanged: onDateChanged,
+              title: title,
+              primaryColor: primaryColor,
+              translations: translations,
+              locale: locale,
+              selectionMode: selectionMode,
+              isModal: true, // Use modal styling
+              autoClose: autoClose,
+              maxRangeDates: maxRangeDates,
+            ),
+          ),
+        );
+      },
     );
   }
 }
