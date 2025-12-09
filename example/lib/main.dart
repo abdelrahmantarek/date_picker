@@ -296,7 +296,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
 
   // Single Date Picker - English
   Future<void> _showSingleDatePicker() async {
-    await EnhancedDateRangePicker.show(
+    await EnhancedDateRangePicker.showModelBottomSheet(
       context: context,
       initialStartDate: _selectedSingleDate,
       primaryColor: Colors.blue,
@@ -319,7 +319,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
 
   // Single Date Picker - Arabic
   Future<void> _showSingleDatePickerArabic() async {
-    await EnhancedDateRangePicker.show(
+    await EnhancedDateRangePicker.showModelBottomSheet(
       context: context,
       initialStartDate: _selectedSingleDateArabic,
       primaryColor: Colors.green,
@@ -335,7 +335,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
 
   // Date Range Picker - English
   Future<void> _showDateRangePicker() async {
-    await EnhancedDateRangePicker.show(
+    await EnhancedDateRangePicker.showModelBottomSheet(
       context: context,
       initialStartDate: _selectedDateRange?.start,
       initialEndDate: _selectedDateRange?.end,
@@ -354,7 +354,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
 
   // Date Range Picker - Arabic
   Future<void> _showDateRangePickerArabic() async {
-    await EnhancedDateRangePicker.show(
+    await EnhancedDateRangePicker.showModelBottomSheet(
       context: context,
       initialStartDate: _selectedDateRangeArabic?.start,
       initialEndDate: _selectedDateRangeArabic?.end,
@@ -376,7 +376,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
 
   // Date Range Picker - Custom Color
   Future<void> _showDateRangePickerCustomColor() async {
-    await EnhancedDateRangePicker.show(
+    await EnhancedDateRangePicker.showModelBottomSheet(
       context: context,
       initialStartDate: _selectedDateRangeCustomColor?.start,
       initialEndDate: _selectedDateRangeCustomColor?.end,
@@ -398,7 +398,7 @@ class _ModalExamplesPageState extends State<ModalExamplesPage> {
 
   // Manual Close Date Picker
   Future<void> _showManualCloseDatePicker() async {
-    await EnhancedDateRangePicker.show(
+    await EnhancedDateRangePicker.showModelBottomSheet(
       context: context,
       initialStartDate: _selectedManualCloseDate,
       primaryColor: Colors.orange,

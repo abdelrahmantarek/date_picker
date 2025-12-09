@@ -759,7 +759,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
       EnhancedDateRangePickerState();
 
   /// Show the date picker as a modal bottom sheet
-  static Future<void> show({
+  static Future<void> showModelBottomSheet({
     required BuildContext context,
     DateTime? initialStartDate,
     DateTime? initialEndDate,
@@ -799,6 +799,9 @@ class EnhancedDateRangePicker extends StatefulWidget {
       ),
     );
   }
+
+
+
 
   /// Show the date picker as a centered dialog
   static Future<void> showAsDialog({
