@@ -11,6 +11,645 @@ enum DateSelectionMode {
   range,
 }
 
+/// Styling configuration for the EnhancedDateRangePicker
+///
+/// This class encapsulates all visual styling options for the date picker,
+/// allowing consistent customization across all display modes (modal bottom sheet,
+/// dialog, and embedded widget).
+///
+/// Example usage:
+/// ```dart
+/// final customStyle = DatePickerStyle(
+///   backgroundColor: Colors.grey[100]!,
+///   primaryColor: Colors.purple,
+///   headerStyle: DatePickerHeaderStyle(
+///     titleStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+///   ),
+/// );
+///
+/// EnhancedDateRangePicker.show(
+///   context: context,
+///   style: customStyle,
+///   onDateSelected: (start, end) {},
+/// );
+/// ```
+class DatePickerStyle {
+  /// Background color for the picker container
+  final Color backgroundColor;
+
+  /// Primary accent color (used for selected dates, buttons, etc.)
+  /// This overrides the `primaryColor` parameter if both are provided
+  final Color primaryColor;
+
+  /// Border color for the embedded widget mode
+  final Color borderColor;
+
+  /// Border radius for modal bottom sheet (top corners only)
+  final double modalBorderRadius;
+
+  /// Border radius for dialog mode
+  final double dialogBorderRadius;
+
+  /// Border radius for embedded widget mode
+  final double embeddedBorderRadius;
+
+  /// Content padding inside the picker
+  final EdgeInsets contentPadding;
+
+  /// Padding for the calendar section
+  final EdgeInsets calendarPadding;
+
+  /// Header styling configuration
+  final DatePickerHeaderStyle headerStyle;
+
+  /// Calendar styling configuration
+  final DatePickerCalendarStyle calendarStyle;
+
+  /// Day cell styling configuration
+  final DatePickerDayCellStyle dayCellStyle;
+
+  /// Action buttons styling configuration
+  final DatePickerButtonStyle buttonStyle;
+
+  /// Selected dates display styling configuration
+  final DatePickerSelectedDatesStyle selectedDatesStyle;
+
+  const DatePickerStyle({
+    this.backgroundColor = Colors.white,
+    this.primaryColor = const Color(0xFF2196F3),
+    this.borderColor = const Color(0xFFE0E0E0),
+    this.modalBorderRadius = 20.0,
+    this.dialogBorderRadius = 20.0,
+    this.embeddedBorderRadius = 12.0,
+    this.contentPadding = const EdgeInsets.all(20),
+    this.calendarPadding = const EdgeInsets.symmetric(horizontal: 20),
+    this.headerStyle = const DatePickerHeaderStyle(),
+    this.calendarStyle = const DatePickerCalendarStyle(),
+    this.dayCellStyle = const DatePickerDayCellStyle(),
+    this.buttonStyle = const DatePickerButtonStyle(),
+    this.selectedDatesStyle = const DatePickerSelectedDatesStyle(),
+  });
+
+  /// Creates a copy of this style with the given fields replaced
+  DatePickerStyle copyWith({
+    Color? backgroundColor,
+    Color? primaryColor,
+    Color? borderColor,
+    double? modalBorderRadius,
+    double? dialogBorderRadius,
+    double? embeddedBorderRadius,
+    EdgeInsets? contentPadding,
+    EdgeInsets? calendarPadding,
+    DatePickerHeaderStyle? headerStyle,
+    DatePickerCalendarStyle? calendarStyle,
+    DatePickerDayCellStyle? dayCellStyle,
+    DatePickerButtonStyle? buttonStyle,
+    DatePickerSelectedDatesStyle? selectedDatesStyle,
+  }) {
+    return DatePickerStyle(
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      primaryColor: primaryColor ?? this.primaryColor,
+      borderColor: borderColor ?? this.borderColor,
+      modalBorderRadius: modalBorderRadius ?? this.modalBorderRadius,
+      dialogBorderRadius: dialogBorderRadius ?? this.dialogBorderRadius,
+      embeddedBorderRadius: embeddedBorderRadius ?? this.embeddedBorderRadius,
+      contentPadding: contentPadding ?? this.contentPadding,
+      calendarPadding: calendarPadding ?? this.calendarPadding,
+      headerStyle: headerStyle ?? this.headerStyle,
+      calendarStyle: calendarStyle ?? this.calendarStyle,
+      dayCellStyle: dayCellStyle ?? this.dayCellStyle,
+      buttonStyle: buttonStyle ?? this.buttonStyle,
+      selectedDatesStyle: selectedDatesStyle ?? this.selectedDatesStyle,
+    );
+  }
+}
+
+/// Header styling configuration for the date picker
+class DatePickerHeaderStyle {
+  /// Padding for the header section
+  final EdgeInsets padding;
+
+  /// Text style for the title
+  final TextStyle? titleStyle;
+
+  /// Color of the title text (used if titleStyle is null)
+  final Color titleColor;
+
+  /// Font size of the title (used if titleStyle is null)
+  final double titleFontSize;
+
+  /// Font weight of the title (used if titleStyle is null)
+  final FontWeight titleFontWeight;
+
+  /// Width of the drag handle
+  final double dragHandleWidth;
+
+  /// Height of the drag handle
+  final double dragHandleHeight;
+
+  /// Color of the drag handle
+  final Color dragHandleColor;
+
+  /// Border radius of the drag handle
+  final double dragHandleBorderRadius;
+
+  /// Spacing between drag handle and title
+  final double dragHandleSpacing;
+
+  /// Icon for the close button
+  final IconData closeIcon;
+
+  /// Color of the close button icon
+  final Color? closeIconColor;
+
+  /// Size of the close button icon
+  final double? closeIconSize;
+
+  const DatePickerHeaderStyle({
+    this.padding = const EdgeInsets.all(20),
+    this.titleStyle,
+    this.titleColor = Colors.black87,
+    this.titleFontSize = 20.0,
+    this.titleFontWeight = FontWeight.bold,
+    this.dragHandleWidth = 40.0,
+    this.dragHandleHeight = 4.0,
+    this.dragHandleColor = const Color(0xFFE0E0E0),
+    this.dragHandleBorderRadius = 2.0,
+    this.dragHandleSpacing = 16.0,
+    this.closeIcon = Icons.close,
+    this.closeIconColor,
+    this.closeIconSize,
+  });
+
+  /// Get the effective title text style
+  TextStyle getEffectiveTitleStyle() {
+    return titleStyle ??
+        TextStyle(
+          fontSize: titleFontSize,
+          fontWeight: titleFontWeight,
+          color: titleColor,
+        );
+  }
+
+  DatePickerHeaderStyle copyWith({
+    EdgeInsets? padding,
+    TextStyle? titleStyle,
+    Color? titleColor,
+    double? titleFontSize,
+    FontWeight? titleFontWeight,
+    double? dragHandleWidth,
+    double? dragHandleHeight,
+    Color? dragHandleColor,
+    double? dragHandleBorderRadius,
+    double? dragHandleSpacing,
+    IconData? closeIcon,
+    Color? closeIconColor,
+    double? closeIconSize,
+  }) {
+    return DatePickerHeaderStyle(
+      padding: padding ?? this.padding,
+      titleStyle: titleStyle ?? this.titleStyle,
+      titleColor: titleColor ?? this.titleColor,
+      titleFontSize: titleFontSize ?? this.titleFontSize,
+      titleFontWeight: titleFontWeight ?? this.titleFontWeight,
+      dragHandleWidth: dragHandleWidth ?? this.dragHandleWidth,
+      dragHandleHeight: dragHandleHeight ?? this.dragHandleHeight,
+      dragHandleColor: dragHandleColor ?? this.dragHandleColor,
+      dragHandleBorderRadius:
+          dragHandleBorderRadius ?? this.dragHandleBorderRadius,
+      dragHandleSpacing: dragHandleSpacing ?? this.dragHandleSpacing,
+      closeIcon: closeIcon ?? this.closeIcon,
+      closeIconColor: closeIconColor ?? this.closeIconColor,
+      closeIconSize: closeIconSize ?? this.closeIconSize,
+    );
+  }
+}
+
+/// Calendar styling configuration for the date picker
+class DatePickerCalendarStyle {
+  /// Bottom margin for each month section
+  final double monthBottomMargin;
+
+  /// Vertical padding for month header
+  final double monthHeaderVerticalPadding;
+
+  /// Font size for month name
+  final double monthNameFontSize;
+
+  /// Font weight for month name
+  final FontWeight monthNameFontWeight;
+
+  /// Color for month name (null uses primary color)
+  final Color? monthNameColor;
+
+  /// Font size for weekday labels
+  final double weekdayFontSize;
+
+  /// Font weight for weekday labels
+  final FontWeight weekdayFontWeight;
+
+  /// Color for weekday labels
+  final Color weekdayColor;
+
+  /// Spacing between weekday header and calendar grid
+  final double weekdayGridSpacing;
+
+  /// Spacing between months in two-column layout
+  final double monthColumnSpacing;
+
+  const DatePickerCalendarStyle({
+    this.monthBottomMargin = 24.0,
+    this.monthHeaderVerticalPadding = 12.0,
+    this.monthNameFontSize = 18.0,
+    this.monthNameFontWeight = FontWeight.bold,
+    this.monthNameColor,
+    this.weekdayFontSize = 12.0,
+    this.weekdayFontWeight = FontWeight.w600,
+    this.weekdayColor = const Color(0xFF757575),
+    this.weekdayGridSpacing = 8.0,
+    this.monthColumnSpacing = 16.0,
+  });
+
+  DatePickerCalendarStyle copyWith({
+    double? monthBottomMargin,
+    double? monthHeaderVerticalPadding,
+    double? monthNameFontSize,
+    FontWeight? monthNameFontWeight,
+    Color? monthNameColor,
+    double? weekdayFontSize,
+    FontWeight? weekdayFontWeight,
+    Color? weekdayColor,
+    double? weekdayGridSpacing,
+    double? monthColumnSpacing,
+  }) {
+    return DatePickerCalendarStyle(
+      monthBottomMargin: monthBottomMargin ?? this.monthBottomMargin,
+      monthHeaderVerticalPadding:
+          monthHeaderVerticalPadding ?? this.monthHeaderVerticalPadding,
+      monthNameFontSize: monthNameFontSize ?? this.monthNameFontSize,
+      monthNameFontWeight: monthNameFontWeight ?? this.monthNameFontWeight,
+      monthNameColor: monthNameColor ?? this.monthNameColor,
+      weekdayFontSize: weekdayFontSize ?? this.weekdayFontSize,
+      weekdayFontWeight: weekdayFontWeight ?? this.weekdayFontWeight,
+      weekdayColor: weekdayColor ?? this.weekdayColor,
+      weekdayGridSpacing: weekdayGridSpacing ?? this.weekdayGridSpacing,
+      monthColumnSpacing: monthColumnSpacing ?? this.monthColumnSpacing,
+    );
+  }
+}
+
+/// Day cell styling configuration for the date picker
+class DatePickerDayCellStyle {
+  /// Height of each day cell
+  final double cellHeight;
+
+  /// Margin around each day cell
+  final EdgeInsets cellMargin;
+
+  /// Font size for day numbers
+  final double dayFontSize;
+
+  /// Font weight for normal days
+  final FontWeight dayFontWeight;
+
+  /// Font weight for selected days
+  final FontWeight selectedDayFontWeight;
+
+  /// Border radius for selected start/end dates
+  final double selectedBorderRadius;
+
+  /// Border radius for dates in range
+  final double inRangeBorderRadius;
+
+  /// Border radius for hovered dates
+  final double hoveredBorderRadius;
+
+  /// Border radius for today indicator
+  final double todayBorderRadius;
+
+  /// Border radius for out of range dates
+  final double outOfRangeBorderRadius;
+
+  /// Border width for today indicator
+  final double todayBorderWidth;
+
+  /// Border width for out of range indicator
+  final double outOfRangeBorderWidth;
+
+  /// Background color for selected dates (null uses primary color)
+  final Color? selectedBackgroundColor;
+
+  /// Text color for selected dates
+  final Color selectedTextColor;
+
+  /// Background opacity for dates in range (0.0 - 1.0)
+  final double inRangeBackgroundOpacity;
+
+  /// Text color for dates in range (null uses primary color)
+  final Color? inRangeTextColor;
+
+  /// Background opacity for hovered dates (0.0 - 1.0)
+  final double hoveredBackgroundOpacity;
+
+  /// Text color for hovered dates (null uses primary color)
+  final Color? hoveredTextColor;
+
+  /// Text color for today (null uses primary color)
+  final Color? todayTextColor;
+
+  /// Text color for normal days
+  final Color normalTextColor;
+
+  /// Text color for disabled/past days
+  final Color disabledTextColor;
+
+  /// Background color for out of range dates
+  final Color outOfRangeBackgroundColor;
+
+  /// Text color for out of range dates
+  final Color outOfRangeTextColor;
+
+  /// Border color for out of range dates
+  final Color outOfRangeBorderColor;
+
+  const DatePickerDayCellStyle({
+    this.cellHeight = 44.0,
+    this.cellMargin = const EdgeInsets.all(2),
+    this.dayFontSize = 14.0,
+    this.dayFontWeight = FontWeight.normal,
+    this.selectedDayFontWeight = FontWeight.bold,
+    this.selectedBorderRadius = 20.0,
+    this.inRangeBorderRadius = 8.0,
+    this.hoveredBorderRadius = 20.0,
+    this.todayBorderRadius = 20.0,
+    this.outOfRangeBorderRadius = 8.0,
+    this.todayBorderWidth = 2.0,
+    this.outOfRangeBorderWidth = 1.0,
+    this.selectedBackgroundColor,
+    this.selectedTextColor = Colors.white,
+    this.inRangeBackgroundOpacity = 0.2,
+    this.inRangeTextColor,
+    this.hoveredBackgroundOpacity = 0.1,
+    this.hoveredTextColor,
+    this.todayTextColor,
+    this.normalTextColor = Colors.black87,
+    this.disabledTextColor = const Color(0xFFBDBDBD),
+    this.outOfRangeBackgroundColor = const Color(0x1AFF0000),
+    this.outOfRangeTextColor = const Color(0xFFC62828),
+    this.outOfRangeBorderColor = const Color(0x80FF0000),
+  });
+
+  DatePickerDayCellStyle copyWith({
+    double? cellHeight,
+    EdgeInsets? cellMargin,
+    double? dayFontSize,
+    FontWeight? dayFontWeight,
+    FontWeight? selectedDayFontWeight,
+    double? selectedBorderRadius,
+    double? inRangeBorderRadius,
+    double? hoveredBorderRadius,
+    double? todayBorderRadius,
+    double? outOfRangeBorderRadius,
+    double? todayBorderWidth,
+    double? outOfRangeBorderWidth,
+    Color? selectedBackgroundColor,
+    Color? selectedTextColor,
+    double? inRangeBackgroundOpacity,
+    Color? inRangeTextColor,
+    double? hoveredBackgroundOpacity,
+    Color? hoveredTextColor,
+    Color? todayTextColor,
+    Color? normalTextColor,
+    Color? disabledTextColor,
+    Color? outOfRangeBackgroundColor,
+    Color? outOfRangeTextColor,
+    Color? outOfRangeBorderColor,
+  }) {
+    return DatePickerDayCellStyle(
+      cellHeight: cellHeight ?? this.cellHeight,
+      cellMargin: cellMargin ?? this.cellMargin,
+      dayFontSize: dayFontSize ?? this.dayFontSize,
+      dayFontWeight: dayFontWeight ?? this.dayFontWeight,
+      selectedDayFontWeight:
+          selectedDayFontWeight ?? this.selectedDayFontWeight,
+      selectedBorderRadius: selectedBorderRadius ?? this.selectedBorderRadius,
+      inRangeBorderRadius: inRangeBorderRadius ?? this.inRangeBorderRadius,
+      hoveredBorderRadius: hoveredBorderRadius ?? this.hoveredBorderRadius,
+      todayBorderRadius: todayBorderRadius ?? this.todayBorderRadius,
+      outOfRangeBorderRadius:
+          outOfRangeBorderRadius ?? this.outOfRangeBorderRadius,
+      todayBorderWidth: todayBorderWidth ?? this.todayBorderWidth,
+      outOfRangeBorderWidth:
+          outOfRangeBorderWidth ?? this.outOfRangeBorderWidth,
+      selectedBackgroundColor:
+          selectedBackgroundColor ?? this.selectedBackgroundColor,
+      selectedTextColor: selectedTextColor ?? this.selectedTextColor,
+      inRangeBackgroundOpacity:
+          inRangeBackgroundOpacity ?? this.inRangeBackgroundOpacity,
+      inRangeTextColor: inRangeTextColor ?? this.inRangeTextColor,
+      hoveredBackgroundOpacity:
+          hoveredBackgroundOpacity ?? this.hoveredBackgroundOpacity,
+      hoveredTextColor: hoveredTextColor ?? this.hoveredTextColor,
+      todayTextColor: todayTextColor ?? this.todayTextColor,
+      normalTextColor: normalTextColor ?? this.normalTextColor,
+      disabledTextColor: disabledTextColor ?? this.disabledTextColor,
+      outOfRangeBackgroundColor:
+          outOfRangeBackgroundColor ?? this.outOfRangeBackgroundColor,
+      outOfRangeTextColor: outOfRangeTextColor ?? this.outOfRangeTextColor,
+      outOfRangeBorderColor:
+          outOfRangeBorderColor ?? this.outOfRangeBorderColor,
+    );
+  }
+}
+
+/// Button styling configuration for the date picker
+class DatePickerButtonStyle {
+  /// Padding for the action buttons container
+  final EdgeInsets containerPadding;
+
+  /// Background color for the action buttons container
+  final Color containerBackgroundColor;
+
+  /// Vertical padding inside buttons
+  final double buttonVerticalPadding;
+
+  /// Border radius for buttons
+  final double buttonBorderRadius;
+
+  /// Spacing between cancel and confirm buttons
+  final double buttonSpacing;
+
+  /// Border color for cancel button
+  final Color cancelButtonBorderColor;
+
+  /// Text color for cancel button
+  final Color cancelButtonTextColor;
+
+  /// Font size for button text
+  final double buttonFontSize;
+
+  /// Font weight for confirm button text
+  final FontWeight confirmButtonFontWeight;
+
+  /// Elevation for confirm button
+  final double confirmButtonElevation;
+
+  /// Show shadow on button container
+  final bool showContainerShadow;
+
+  /// Shadow color for button container
+  final Color containerShadowColor;
+
+  /// Shadow blur radius
+  final double containerShadowBlurRadius;
+
+  /// Shadow spread radius
+  final double containerShadowSpreadRadius;
+
+  /// Shadow offset
+  final Offset containerShadowOffset;
+
+  const DatePickerButtonStyle({
+    this.containerPadding = const EdgeInsets.all(20),
+    this.containerBackgroundColor = Colors.white,
+    this.buttonVerticalPadding = 16.0,
+    this.buttonBorderRadius = 12.0,
+    this.buttonSpacing = 16.0,
+    this.cancelButtonBorderColor = const Color(0xFFBDBDBD),
+    this.cancelButtonTextColor = const Color(0xFF757575),
+    this.buttonFontSize = 14.0,
+    this.confirmButtonFontWeight = FontWeight.w600,
+    this.confirmButtonElevation = 0.0,
+    this.showContainerShadow = true,
+    this.containerShadowColor = const Color(0x1A000000),
+    this.containerShadowBlurRadius = 8.0,
+    this.containerShadowSpreadRadius = 1.0,
+    this.containerShadowOffset = const Offset(0, -2),
+  });
+
+  DatePickerButtonStyle copyWith({
+    EdgeInsets? containerPadding,
+    Color? containerBackgroundColor,
+    double? buttonVerticalPadding,
+    double? buttonBorderRadius,
+    double? buttonSpacing,
+    Color? cancelButtonBorderColor,
+    Color? cancelButtonTextColor,
+    double? buttonFontSize,
+    FontWeight? confirmButtonFontWeight,
+    double? confirmButtonElevation,
+    bool? showContainerShadow,
+    Color? containerShadowColor,
+    double? containerShadowBlurRadius,
+    double? containerShadowSpreadRadius,
+    Offset? containerShadowOffset,
+  }) {
+    return DatePickerButtonStyle(
+      containerPadding: containerPadding ?? this.containerPadding,
+      containerBackgroundColor:
+          containerBackgroundColor ?? this.containerBackgroundColor,
+      buttonVerticalPadding:
+          buttonVerticalPadding ?? this.buttonVerticalPadding,
+      buttonBorderRadius: buttonBorderRadius ?? this.buttonBorderRadius,
+      buttonSpacing: buttonSpacing ?? this.buttonSpacing,
+      cancelButtonBorderColor:
+          cancelButtonBorderColor ?? this.cancelButtonBorderColor,
+      cancelButtonTextColor:
+          cancelButtonTextColor ?? this.cancelButtonTextColor,
+      buttonFontSize: buttonFontSize ?? this.buttonFontSize,
+      confirmButtonFontWeight:
+          confirmButtonFontWeight ?? this.confirmButtonFontWeight,
+      confirmButtonElevation:
+          confirmButtonElevation ?? this.confirmButtonElevation,
+      showContainerShadow: showContainerShadow ?? this.showContainerShadow,
+      containerShadowColor: containerShadowColor ?? this.containerShadowColor,
+      containerShadowBlurRadius:
+          containerShadowBlurRadius ?? this.containerShadowBlurRadius,
+      containerShadowSpreadRadius:
+          containerShadowSpreadRadius ?? this.containerShadowSpreadRadius,
+      containerShadowOffset:
+          containerShadowOffset ?? this.containerShadowOffset,
+    );
+  }
+}
+
+/// Selected dates display styling configuration
+class DatePickerSelectedDatesStyle {
+  /// Padding inside the selected date container
+  final EdgeInsets containerPadding;
+
+  /// Border radius for the selected date container
+  final double containerBorderRadius;
+
+  /// Background opacity for the selected date container (0.0 - 1.0)
+  final double containerBackgroundOpacity;
+
+  /// Top margin for the selected dates section
+  final double topMargin;
+
+  /// Spacing between start and end date containers
+  final double containerSpacing;
+
+  /// Font size for the date label (e.g., "Start Date")
+  final double labelFontSize;
+
+  /// Color for the date label
+  final Color labelColor;
+
+  /// Font size for the selected date value
+  final double valueFontSize;
+
+  /// Font weight for the selected date value
+  final FontWeight valueFontWeight;
+
+  /// Spacing between label and value
+  final double labelValueSpacing;
+
+  const DatePickerSelectedDatesStyle({
+    this.containerPadding = const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 8,
+    ),
+    this.containerBorderRadius = 8.0,
+    this.containerBackgroundOpacity = 0.1,
+    this.topMargin = 12.0,
+    this.containerSpacing = 12.0,
+    this.labelFontSize = 12.0,
+    this.labelColor = const Color(0xFF757575),
+    this.valueFontSize = 14.0,
+    this.valueFontWeight = FontWeight.w600,
+    this.labelValueSpacing = 4.0,
+  });
+
+  DatePickerSelectedDatesStyle copyWith({
+    EdgeInsets? containerPadding,
+    double? containerBorderRadius,
+    double? containerBackgroundOpacity,
+    double? topMargin,
+    double? containerSpacing,
+    double? labelFontSize,
+    Color? labelColor,
+    double? valueFontSize,
+    FontWeight? valueFontWeight,
+    double? labelValueSpacing,
+  }) {
+    return DatePickerSelectedDatesStyle(
+      containerPadding: containerPadding ?? this.containerPadding,
+      containerBorderRadius:
+          containerBorderRadius ?? this.containerBorderRadius,
+      containerBackgroundOpacity:
+          containerBackgroundOpacity ?? this.containerBackgroundOpacity,
+      topMargin: topMargin ?? this.topMargin,
+      containerSpacing: containerSpacing ?? this.containerSpacing,
+      labelFontSize: labelFontSize ?? this.labelFontSize,
+      labelColor: labelColor ?? this.labelColor,
+      valueFontSize: valueFontSize ?? this.valueFontSize,
+      valueFontWeight: valueFontWeight ?? this.valueFontWeight,
+      labelValueSpacing: labelValueSpacing ?? this.labelValueSpacing,
+    );
+  }
+}
+
 /// Enhanced Date Picker - A versatile date picker for any use case
 /// Supports both single date selection and date range selection
 /// Can be used as a standalone widget or shown as a modal bottom sheet
@@ -82,6 +721,10 @@ class EnhancedDateRangePicker extends StatefulWidget {
   /// When false: You need to manually close using Navigator.pop(context)
   final bool autoClose;
 
+  /// Styling configuration for the date picker
+  /// If not provided, default styling will be used
+  final DatePickerStyle? style;
+
   const EnhancedDateRangePicker({
     super.key,
     this.initialStartDate,
@@ -108,6 +751,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     this.maxRangeDates = 10000,
     this.minDate,
     this.maxDate,
+    this.style,
   });
 
   @override
@@ -130,6 +774,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
     DateSelectionMode selectionMode = DateSelectionMode.range,
     bool autoClose = true,
     int maxRangeDates = 10000,
+    DatePickerStyle? style,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -150,6 +795,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
         isModal: true, // Always true for modal display
         autoClose: autoClose,
         maxRangeDates: maxRangeDates,
+        style: style,
       ),
     );
   }
@@ -172,7 +818,10 @@ class EnhancedDateRangePicker extends StatefulWidget {
     int maxRangeDates = 10000,
     double? dialogWidth,
     double? dialogHeight,
+    DatePickerStyle? style,
   }) {
+    final effectiveStyle = style ?? const DatePickerStyle();
+
     return showDialog(
       context: context,
       barrierDismissible: true,
@@ -193,8 +842,10 @@ class EnhancedDateRangePicker extends StatefulWidget {
             width: width,
             height: height,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: effectiveStyle.backgroundColor,
+              borderRadius: BorderRadius.circular(
+                effectiveStyle.dialogBorderRadius,
+              ),
             ),
             child: EnhancedDateRangePicker(
               initialStartDate: initialStartDate,
@@ -211,6 +862,7 @@ class EnhancedDateRangePicker extends StatefulWidget {
               isModal: true, // Use modal styling
               autoClose: autoClose,
               maxRangeDates: maxRangeDates,
+              style: style,
             ),
           ),
         );
@@ -310,6 +962,12 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     );
   }
 
+  /// Get the effective style (provided or default)
+  DatePickerStyle get _style => widget.style ?? const DatePickerStyle();
+
+  /// Get the effective primary color (style takes precedence over widget.primaryColor)
+  Color get _primaryColor => widget.style?.primaryColor ?? widget.primaryColor;
+
   @override
   void initState() {
     super.initState();
@@ -383,9 +1041,11 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       // Modal bottom sheet style
       return Container(
         height: MediaQuery.of(context).size.height * 0.9,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: _style.backgroundColor,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(_style.modalBorderRadius),
+          ),
         ),
         child: content,
       );
@@ -395,9 +1055,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         height: widget.height,
         width: widget.width,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
+          color: _style.backgroundColor,
+          borderRadius: BorderRadius.circular(_style.embeddedBorderRadius),
+          border: Border.all(color: _style.borderColor),
         ),
         child: content,
       );
@@ -418,21 +1078,25 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   Widget _buildHeader() {
+    final headerStyle = _style.headerStyle;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: headerStyle.padding,
       child: Column(
         children: [
           // Drag handle (only in modal mode)
           if (widget.isModal)
             Container(
-              width: 40,
-              height: 4,
+              width: headerStyle.dragHandleWidth,
+              height: headerStyle.dragHandleHeight,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                color: headerStyle.dragHandleColor,
+                borderRadius: BorderRadius.circular(
+                  headerStyle.dragHandleBorderRadius,
+                ),
               ),
             ),
-          if (widget.isModal) const SizedBox(height: 16),
+          if (widget.isModal) SizedBox(height: headerStyle.dragHandleSpacing),
 
           // Title
           if (widget.showTitle)
@@ -447,16 +1111,17 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                                 ? 'datePicker.title'
                                 : 'datePicker.titleRange',
                           ),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: headerStyle.getEffectiveTitleStyle(),
                   ),
                 ),
                 if (widget.isModal)
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(
+                      headerStyle.closeIcon,
+                      color: headerStyle.closeIconColor,
+                      size: headerStyle.closeIconSize,
+                    ),
                   ),
               ],
             ),
@@ -464,7 +1129,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
           // Selected dates display
           if (widget.showSelectedDates && (_startDate != null))
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(
+                top: _style.selectedDatesStyle.topMargin,
+              ),
               child: _buildSelectedDatesDisplay(),
             ),
         ],
@@ -473,22 +1140,28 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   Widget _buildSelectedDatesDisplay() {
+    final selectedStyle = _style.selectedDatesStyle;
+
     if (widget.selectionMode == DateSelectionMode.single) {
       // Single date display
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: selectedStyle.containerPadding,
         decoration: BoxDecoration(
-          color: widget.primaryColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+          color: _primaryColor.withValues(
+            alpha: selectedStyle.containerBackgroundOpacity,
+          ),
+          borderRadius: BorderRadius.circular(
+            selectedStyle.containerBorderRadius,
+          ),
         ),
         child: Text(
           _startDate != null
               ? DateFormat('MMM dd, yyyy', widget.locale).format(_startDate!)
               : '',
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: widget.primaryColor,
+            fontSize: selectedStyle.valueFontSize,
+            fontWeight: selectedStyle.valueFontWeight,
+            color: _primaryColor,
           ),
         ),
       );
@@ -498,19 +1171,26 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: selectedStyle.containerPadding,
               decoration: BoxDecoration(
-                color: widget.primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                color: _primaryColor.withValues(
+                  alpha: selectedStyle.containerBackgroundOpacity,
+                ),
+                borderRadius: BorderRadius.circular(
+                  selectedStyle.containerBorderRadius,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     _translate('datePicker.startDate'),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: selectedStyle.labelFontSize,
+                      color: selectedStyle.labelColor,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: selectedStyle.labelValueSpacing),
                   Text(
                     _startDate != null
                         ? DateFormat(
@@ -519,31 +1199,38 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                           ).format(_startDate!)
                         : '-',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: widget.primaryColor,
+                      fontSize: selectedStyle.valueFontSize,
+                      fontWeight: selectedStyle.valueFontWeight,
+                      color: _primaryColor,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: selectedStyle.containerSpacing),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: selectedStyle.containerPadding,
               decoration: BoxDecoration(
-                color: widget.primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                color: _primaryColor.withValues(
+                  alpha: selectedStyle.containerBackgroundOpacity,
+                ),
+                borderRadius: BorderRadius.circular(
+                  selectedStyle.containerBorderRadius,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     _translate('datePicker.endDate'),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: selectedStyle.labelFontSize,
+                      color: selectedStyle.labelColor,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: selectedStyle.labelValueSpacing),
                   Text(
                     _endDate != null
                         ? DateFormat(
@@ -552,9 +1239,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                           ).format(_endDate!)
                         : '-',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: widget.primaryColor,
+                      fontSize: selectedStyle.valueFontSize,
+                      fontWeight: selectedStyle.valueFontWeight,
+                      color: _primaryColor,
                     ),
                   ),
                 ],
@@ -609,8 +1296,10 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
       monthsToShow = 6;
     }
 
+    final calendarStyle = _style.calendarStyle;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: _style.calendarPadding,
       child: ListView.builder(
         controller: _scrollController,
         itemCount: isLargeScreen
@@ -640,7 +1329,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(child: _buildMonthCalendar(firstMonthDate)),
-                  const SizedBox(width: 16),
+                  SizedBox(width: calendarStyle.monthColumnSpacing),
                   Expanded(child: _buildMonthCalendar(secondMonthDate)),
                 ],
               );
@@ -650,7 +1339,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(child: _buildMonthCalendar(firstMonthDate)),
-                  const SizedBox(width: 16),
+                  SizedBox(width: calendarStyle.monthColumnSpacing),
                   const Expanded(child: SizedBox()), // Empty placeholder
                 ],
               );
@@ -670,6 +1359,8 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   Widget _buildMonthCalendar(DateTime monthDate) {
+    final calendarStyle = _style.calendarStyle;
+
     // Format month name based on locale
     String monthName;
     if (_localeInitialized) {
@@ -685,19 +1376,21 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: EdgeInsets.only(bottom: calendarStyle.monthBottomMargin),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Month header
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: EdgeInsets.symmetric(
+              vertical: calendarStyle.monthHeaderVerticalPadding,
+            ),
             child: Text(
               monthName,
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: widget.primaryColor,
-                fontSize: 18,
+                fontWeight: calendarStyle.monthNameFontWeight,
+                color: calendarStyle.monthNameColor ?? _primaryColor,
+                fontSize: calendarStyle.monthNameFontSize,
               ),
             ),
           ),
@@ -705,7 +1398,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
           // Days of week header
           _buildDaysOfWeekHeader(),
 
-          const SizedBox(height: 8),
+          SizedBox(height: calendarStyle.weekdayGridSpacing),
 
           // Calendar grid
           _buildMonthGrid(monthDate),
@@ -715,6 +1408,8 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   Widget _buildDaysOfWeekHeader() {
+    final calendarStyle = _style.calendarStyle;
+
     final daysOfWeek = [
       _translate('datePicker.sunday'),
       _translate('datePicker.monday'),
@@ -732,9 +1427,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                 child: Text(
                   day,
                   style: TextStyle(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
+                    color: calendarStyle.weekdayColor,
+                    fontWeight: calendarStyle.weekdayFontWeight,
+                    fontSize: calendarStyle.weekdayFontSize,
                   ),
                 ),
               ),
@@ -762,13 +1457,15 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     final totalCells = firstWeekday + daysInMonth;
     final weeksNeeded = (totalCells / 7).ceil();
 
+    final cellHeight = _style.dayCellStyle.cellHeight;
+
     for (int week = 0; week < weeksNeeded; week++) {
       final weekDays = <Widget>[];
 
       for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
         if (week == 0 && dayOfWeek < firstWeekday) {
           // Empty cell before the first day of the month
-          weekDays.add(const Expanded(child: SizedBox(height: 44)));
+          weekDays.add(Expanded(child: SizedBox(height: cellHeight)));
         } else if (dayCounter <= daysInMonth) {
           // Day cell for current month
           final currentDate = DateTime(
@@ -780,7 +1477,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
           dayCounter++;
         } else {
           // Empty cell after the last day of the month
-          weekDays.add(const Expanded(child: SizedBox(height: 44)));
+          weekDays.add(Expanded(child: SizedBox(height: cellHeight)));
         }
       }
 
@@ -791,6 +1488,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   Widget _buildDayCell(DateTime date, DateTime monthDate) {
+    final dayCellStyle = _style.dayCellStyle;
     final isCurrentMonth = date.month == monthDate.month;
     final today = DateTime.now();
     final isToday = _isSameDay(date, today);
@@ -847,34 +1545,46 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     bool isSelectable = true;
 
     if (isOutOfSelectableRange) {
-      textColor = Colors.grey[400];
+      textColor = dayCellStyle.disabledTextColor;
       isSelectable = false;
     } else if (isBeyondMaxRange) {
-      // Red highlight for dates beyond 30-day limit
-      backgroundColor = Colors.red.withValues(alpha: 0.1);
-      textColor = Colors.red[700];
-      border = Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1);
-      borderRadius = BorderRadius.circular(8);
+      // Red highlight for dates beyond max range limit
+      backgroundColor = dayCellStyle.outOfRangeBackgroundColor;
+      textColor = dayCellStyle.outOfRangeTextColor;
+      border = Border.all(
+        color: dayCellStyle.outOfRangeBorderColor,
+        width: dayCellStyle.outOfRangeBorderWidth,
+      );
+      borderRadius = BorderRadius.circular(dayCellStyle.outOfRangeBorderRadius);
       isSelectable = false;
     } else if (isStartDate || isEndDate) {
-      backgroundColor = widget.primaryColor;
-      textColor = Colors.white;
-      borderRadius = BorderRadius.circular(20);
+      backgroundColor = dayCellStyle.selectedBackgroundColor ?? _primaryColor;
+      textColor = dayCellStyle.selectedTextColor;
+      borderRadius = BorderRadius.circular(dayCellStyle.selectedBorderRadius);
     } else if (isInRange) {
-      backgroundColor = widget.primaryColor.withValues(alpha: 0.2);
-      textColor = widget.primaryColor;
-      borderRadius = BorderRadius.circular(8);
+      backgroundColor = _primaryColor.withValues(
+        alpha: dayCellStyle.inRangeBackgroundOpacity,
+      );
+      textColor = dayCellStyle.inRangeTextColor ?? _primaryColor;
+      borderRadius = BorderRadius.circular(dayCellStyle.inRangeBorderRadius);
     } else if (isHovered && isSelectable) {
       // Hover effect for selectable dates
-      backgroundColor = widget.primaryColor.withValues(alpha: 0.1);
-      textColor = widget.primaryColor;
-      borderRadius = BorderRadius.circular(20);
+      backgroundColor = _primaryColor.withValues(
+        alpha: dayCellStyle.hoveredBackgroundOpacity,
+      );
+      textColor = dayCellStyle.hoveredTextColor ?? _primaryColor;
+      borderRadius = BorderRadius.circular(dayCellStyle.hoveredBorderRadius);
     } else if (isToday) {
-      border = Border.all(color: widget.primaryColor, width: 2);
-      textColor = widget.primaryColor;
-      borderRadius = BorderRadius.circular(20);
+      border = Border.all(
+        color: dayCellStyle.todayTextColor ?? _primaryColor,
+        width: dayCellStyle.todayBorderWidth,
+      );
+      textColor = dayCellStyle.todayTextColor ?? _primaryColor;
+      borderRadius = BorderRadius.circular(dayCellStyle.todayBorderRadius);
     } else {
-      textColor = isCurrentMonth ? Colors.black87 : Colors.grey[400];
+      textColor = isCurrentMonth
+          ? dayCellStyle.normalTextColor
+          : dayCellStyle.disabledTextColor;
     }
 
     return Expanded(
@@ -888,8 +1598,8 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
           key: cellKey,
           onTap: isSelectable ? () => _onDateTap(date) : null,
           child: Container(
-            height: 44,
-            margin: const EdgeInsets.all(2),
+            height: dayCellStyle.cellHeight,
+            margin: dayCellStyle.cellMargin,
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: borderRadius,
@@ -901,9 +1611,9 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                 style: TextStyle(
                   color: textColor,
                   fontWeight: (isStartDate || isEndDate)
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                  fontSize: 14,
+                      ? dayCellStyle.selectedDayFontWeight
+                      : dayCellStyle.dayFontWeight,
+                  fontSize: dayCellStyle.dayFontSize,
                 ),
               ),
             ),
@@ -1118,6 +1828,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
   }
 
   Widget _buildActionButtons() {
+    final buttonStyle = _style.buttonStyle;
     final canConfirm = widget.selectionMode == DateSelectionMode.single
         ? _startDate != null
         : (_startDate != null && _endDate != null);
@@ -1133,15 +1844,22 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
                 ? () => Navigator.of(context).pop()
                 : _cancelSelection,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.grey[400]!),
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: buttonStyle.cancelButtonBorderColor),
+              padding: EdgeInsets.symmetric(
+                vertical: buttonStyle.buttonVerticalPadding,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  buttonStyle.buttonBorderRadius,
+                ),
               ),
             ),
             child: Text(
               _translate('datePicker.cancel'),
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              style: TextStyle(
+                color: buttonStyle.cancelButtonTextColor,
+                fontSize: buttonStyle.buttonFontSize,
+              ),
             ),
           ),
         ),
@@ -1149,7 +1867,7 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     }
 
     if (widget.showCancelButton && widget.showConfirmButton) {
-      buttons.add(const SizedBox(width: 16));
+      buttons.add(SizedBox(width: buttonStyle.buttonSpacing));
     }
 
     if (widget.showConfirmButton) {
@@ -1159,20 +1877,24 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
           child: ElevatedButton(
             onPressed: canConfirm ? _confirmSelection : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: widget.primaryColor,
+              backgroundColor: _primaryColor,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+              padding: EdgeInsets.symmetric(
+                vertical: buttonStyle.buttonVerticalPadding,
               ),
-              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  buttonStyle.buttonBorderRadius,
+                ),
+              ),
+              elevation: buttonStyle.confirmButtonElevation,
             ),
             child: Text(
               _translate('datePicker.confirm'),
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
+                fontWeight: buttonStyle.confirmButtonFontWeight,
+                fontSize: buttonStyle.buttonFontSize,
               ),
             ),
           ),
@@ -1181,17 +1903,19 @@ class EnhancedDateRangePickerState extends State<EnhancedDateRangePicker>
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: buttonStyle.containerPadding,
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        color: buttonStyle.containerBackgroundColor,
+        boxShadow: buttonStyle.showContainerShadow
+            ? [
+                BoxShadow(
+                  color: buttonStyle.containerShadowColor,
+                  spreadRadius: buttonStyle.containerShadowSpreadRadius,
+                  blurRadius: buttonStyle.containerShadowBlurRadius,
+                  offset: buttonStyle.containerShadowOffset,
+                ),
+              ]
+            : null,
       ),
       child: SafeArea(child: Row(children: buttons)),
     );
